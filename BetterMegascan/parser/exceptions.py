@@ -1,0 +1,2 @@
+class InvalidStructureError(Exception):
+    pass
