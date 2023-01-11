@@ -17,7 +17,7 @@ Required **Python** version: `3.10`\
 Tested on **Blender** version: `3.3`
 
 ## Installation
-- `Edit > Preferences > Add-ons > Install` and find your zip
-  - Get your copy in [Releases](https://github.com/Zexyp/BetterMegascan/releases)
-  - *Please don't use the repository*
+- `Edit > Preferences > Add-ons > Install` and find your zip archive
+  - Get your own copy in [Releases](https://github.com/Zexyp/BetterMegascan/releases)
+  - *Please don't use the repository as the zip file*
 - Activate if necessary
