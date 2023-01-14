@@ -5,6 +5,7 @@ Simple addon to help you import Megascans into your Blender scenes withou having
 Allows import of:
   - 3D Assets (plants)
   - Surfaces (decals, atlases, ...)
+  - Brushes (their opacity maps)
 
 The import process is highly customizable:\
 ![image](https://user-images.githubusercontent.com/67203887/211866349-7ee89931-e4c6-4963-b1ed-1a33257b10b5.png)
