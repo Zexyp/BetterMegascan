@@ -1,13 +1,9 @@
 import bpy.utils.previews
 import os
-import logging
 
+from .. import spawn_logger
 
-log = logging.Logger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", "%H:%M:%S"))
-log.addHandler(handler)
+log = spawn_logger(__name__)
 
 
 icons = {}

@@ -1,11 +1,8 @@
-import logging
+from .. import spawn_logger
 
-log = logging.Logger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", "%H:%M:%S"))
-log.addHandler(handler)
+log = spawn_logger(__name__)
 
 from .import_3dasset import BETTERMS_OT_import_3dasset
 from .import_surface import BETTERMS_OT_import_surface
+from .import_brush import BETTERMS_OT_import_brush
 from .init_menu import BETTERMS_OT_init_import_menu

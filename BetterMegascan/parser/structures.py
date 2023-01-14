@@ -36,6 +36,7 @@ class MegascanData:
     id: str = None
     name: str = None
 
+    #            name
     models: dict[str, MegascanModel] = field(default_factory=lambda: {})
     #          type
     maps: dict[str, MegascanMap] = field(default_factory=lambda: {})

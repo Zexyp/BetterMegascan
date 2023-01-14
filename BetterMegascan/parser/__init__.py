@@ -2,9 +2,9 @@ import json
 import os
 from zipfile import ZipFile, Path as ZipPath
 from pathlib import Path
-import logging
 import re
 from pprint import pprint, pformat
+import logging
 
 # idk how to do it
 if __name__ == '__main__':
@@ -14,12 +14,16 @@ else:
     from .exceptions import *
     from .structures import *
 
-
-log = logging.Logger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", "%H:%M:%S"))
-log.addHandler(handler)
+log: logging.Logger = None
+try:
+    from .. import spawn_logger
+    log = spawn_logger(__name__)
+except ImportError:
+    log = logging.Logger(__name__)
+    log.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", "%H:%M:%S"))
+    log.addHandler(handler)
 
 tmp_dir: str = None
 
@@ -146,14 +150,14 @@ def _parse_json(mdata: MegascanData, jsondata, dirfiles: list[str]):
             case "3D plant":
                 _parse_json_models(mdata, jroot["models"], dirfiles)
                 _parse_json_maps(mdata, jroot["maps"], dirfiles)
-            case "surface" | "decal":
+            case "surface" | "decal" | "brush":
                 _parse_json_maps(mdata, jroot["maps"], dirfiles)
             case "atlas":
                 _parse_json_components(mdata, jroot["components"], dirfiles)
             case _:
-                raise InvalidStructureError
-    except KeyError:
-        raise InvalidStructureError
+                raise InvalidStructureError("unknown asset type")
+    except KeyError as ke:
+        raise InvalidStructureError("json seems to be invalid") from ke
 
 
 def _find_json(path):
@@ -166,7 +170,7 @@ def _find_json(path):
             metajson = p.name
             break
     if metajson is None:
-        raise InvalidStructureError
+        raise InvalidStructureError("no json ")
 
     log.debug(f"metadata json: {metajson}")
     return metajson

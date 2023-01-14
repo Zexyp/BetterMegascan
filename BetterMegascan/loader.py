@@ -1,10 +1,14 @@
 import bpy
 
+import logging
+
 from . import parser
-from . import log
+from . import spawn_logger
+
+log = spawn_logger(__name__)
 
 
-def load_asset(mdata,
+def load_asset(mdata: parser.structures.MegascanData,
                filepath: str,
                group_by_model: bool,
                group_by_lod: bool,
@@ -13,6 +17,26 @@ def load_asset(mdata,
                use_lods: list[int] | tuple[int] | set[int],
                use_maps: list[str] | tuple[str] | set[str],
                pack_maps: bool):
+    def add_collection(name):
+        collection = bpy.data.collections.new(name)
+        bpy.context.collection.children.link(collection)
+        return collection
+
+    def activate_collection(collection):
+        layer = layer_collection_recursive_search(bpy.context.view_layer.layer_collection, collection.name)
+        prev = bpy.context.view_layer.active_layer_collection
+        bpy.context.view_layer.active_layer_collection = layer
+        return prev
+
+    def layer_collection_recursive_search(collection, name):
+        if collection.name == name:
+            return collection
+
+        found = None
+        for child in collection.children:
+            found = layer_collection_recursive_search(child, name)
+            if found:
+                return found
 
     loaded_objects = []
 
@@ -99,7 +123,7 @@ def load_asset(mdata,
     return ret
 
 
-def load_material(mdata,
+def load_material(mdata: parser.structures.MegascanData,
                   filepath: str,
                   use_filetype_maps: str,
                   use_maps: list[str] | tuple[str] | set[str],
@@ -117,36 +141,23 @@ def load_material(mdata,
             except ValueError:
                 continue
 
-            load_map(mdata.maps[mapkey])
-
-    def load_map(mmap):
-        log.debug(f"loading map {mmap.type}")
-
-        varianttype = None
-        match use_filetype_maps:
-            case 'PREFER_EXR':
-                varianttype = 'image/x-exr' if 'image/x-exr' in mmap.lods[0] else 'image/jpeg'
-            case 'EXR':
-                varianttype = 'image/x-exr'
-            case 'JPEG':
-                varianttype = 'image/jpeg'
-            case _:
-                raise Exception
-        assert varianttype
-
-        if varianttype in mmap.lods[0]:                                            # eyo the pep limit is right here -->                      but mine is here -->
-            image = loaded_images[mmap.type] = bpy.data.images.load(parser.ensure_file(filepath, mmap.lods[0][varianttype].filepath))
-            if pack_maps:
-                image.pack()
+            mmap = mdata.maps[mapkey]
+            image = load_map(mmap,
+                             filepath=filepath,
+                             use_filetype_maps=use_filetype_maps,
+                             pack_maps=pack_maps)
+            if image is not None:
+                loaded_images[mmap.type] = image
 
     load_maps(mdata)
 
+    log.debug("creating material")
     material = bpy.data.materials.new(f"{mdata.name}_{mdata.id}")
     material.use_nodes = True
     nodes = material.node_tree.nodes
 
     def create_generic_node(type, pos: tuple = None):
-        node =material.node_tree.nodes.new(type=type)
+        node = material.node_tree.nodes.new(type=type)
         if pos:
             node.location = pos
 
@@ -264,25 +275,56 @@ def load_material(mdata,
     return {"material": material, "images": loaded_images}
 
 
-def add_collection(name):
-    collection = bpy.data.collections.new(name)
-    bpy.context.collection.children.link(collection)
-    return collection
+def load_brush(mdata: parser.structures.MegascanData,
+               filepath: str,
+               use_filetype_maps: str,
+               pack_maps: bool):
+
+    log.debug("loading brush")
+
+    key = None
+    if "brush" in mdata.maps:
+        key = "brush"
+    elif "opacity" in mdata.maps:
+        key = "opacity"
+
+    texture = None
+    if key is not None:
+        image = load_map(mdata.maps[key],
+                         filepath,
+                         use_filetype_maps=use_filetype_maps,
+                         pack_maps=pack_maps)
+        if image is not None:
+            texture = bpy.data.textures.new(f"Brush_{mdata.name}_{mdata.id}", type='IMAGE')
+            texture.image = image
+        else:
+            log.debug("map for brush was not found")
+
+    return {"texture": texture}
 
 
-def activate_collection(collection):
-    layer = layer_collection_recursive_search(bpy.context.view_layer.layer_collection, collection.name)
-    prev = bpy.context.view_layer.active_layer_collection
-    bpy.context.view_layer.active_layer_collection = layer
-    return prev
+def load_map(mmap: parser.structures.MegascanMap,
+             filepath: str,
+             use_filetype_maps: str,
+             pack_maps: bool):
+    log.debug(f"loading map {mmap.type}")
 
+    varianttype = None
+    match use_filetype_maps:
+        case 'PREFER_EXR':
+            varianttype = 'image/x-exr' if 'image/x-exr' in mmap.lods[0] else 'image/jpeg'
+        case 'EXR':
+            varianttype = 'image/x-exr'
+        case 'JPEG':
+            varianttype = 'image/jpeg'
+        case _:
+            raise Exception
+    assert varianttype
 
-def layer_collection_recursive_search(collection, name):
-    if collection.name == name:
-        return collection
-
-    found = None
-    for child in collection.children:
-        found = layer_collection_recursive_search(child, name)
-        if found:
-            return found
+    if varianttype in mmap.lods[0]:                                                # eyo the pep limit is right here -->                      but mine is here -->
+        image = bpy.data.images.load(
+            parser.ensure_file(filepath, mmap.lods[0][varianttype].filepath))
+        if pack_maps:
+            image.pack()
+        return image
+    return None

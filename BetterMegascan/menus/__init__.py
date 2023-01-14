@@ -15,4 +15,4 @@ class BETTERMS_MT_import(bpy.types.Menu):
 
         layout.operator(BETTERMS_OT_import_3dasset.bl_idname, icon='OUTLINER_OB_MESH')
         layout.operator(BETTERMS_OT_import_surface.bl_idname, icon='MATERIAL')
-        #layout.operator(.bl_idname, icon='BRUSH_DATA')
+        layout.operator(BETTERMS_OT_import_brush.bl_idname, icon='BRUSH_DATA')

@@ -1,11 +1,10 @@
 import bpy
-from bpy.types import Operator
-from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, EnumProperty, BoolProperty, BoolVectorProperty
 
 import os
 import traceback
 
+from .base_importer import BaseImporter
 from .. import parser
 from .. import loader
 
@@ -38,18 +37,11 @@ map_options_names = [
 '''
 
 
-class BETTERMS_OT_import_3dasset(Operator, ImportHelper):
+class BETTERMS_OT_import_3dasset(BaseImporter):
     bl_idname = "betterms.import_3dasset"
     bl_label = "3D Asset"
     bl_description = "Load model with material and its textures"
     bl_options = {'UNDO', 'PRESET'}
-
-    # ImportHelper mixin class uses this
-    filename_ext = ".zip"
-    filter_glob: StringProperty(
-        default="*.zip",
-        options={'HIDDEN'}
-    )
 
     lod_options = [
         0,
@@ -157,51 +149,23 @@ class BETTERMS_OT_import_3dasset(Operator, ImportHelper):
         default=False,
     )
 
-    def draw(self, context):
-        pass
+    able_to_import = ["3D asset", "3D plant"]
 
-    def execute(self, context):
-        if not self.filepath:
-            return {'CANCELLED'}
-
-        selected_filepath = self.filepath
-
-        if not os.path.exists(selected_filepath):
-            selected_filepath = os.path.dirname(selected_filepath)
-
-        log.debug(f"selected {selected_filepath}")
-
+    def finxish_execute(self, context) -> set:
         if self.use_filetype_lods == 'ABC':
             self.report({'WARNING'}, "Alembic files are not supported.")
             # raise NotImplemented
             return {'CANCELLED'}
 
-        mdata = None
-
-        try:
-            if os.path.isfile(selected_filepath):
-                mdata = parser.parse_zip(selected_filepath)
-            if os.path.isdir(selected_filepath):
-                mdata = parser.parse(selected_filepath)
-        except parser.InvalidStructureError:
-            log.debug(traceback.format_exc())
-            self.report({'ERROR'}, "Structure was not recognized.")
-            return {'CANCELLED'}
-        assert mdata
-
-        if mdata.type not in ["3D asset", "3D plant"]:
-            self.report({'WARNING'}, "Invalid asset type.")
-            return {'CANCELLED'}
-
-        load_ret = loader.load_asset(mdata,
-                                     selected_filepath,
+        load_ret = loader.load_asset(self.mdata,
+                                     self.selected_filepath,
                                      group_by_model=self.group_by_model,
                                      group_by_lod=self.group_by_lod,
                                      use_filetype_lods=self.use_filetype_lods,
                                      use_filetype_maps=self.use_filetype_maps,
                                      use_lods=[self.lod_options[i] for i, e in enumerate(self.use_lods) if e],
                                      use_maps=[self.map_options[i] for i, e in enumerate(self.use_maps) if e],
-                                     pack_maps=os.path.isfile(selected_filepath))
+                                     pack_maps=os.path.isfile(self.selected_filepath))
 
         for o in load_ret["objects"]:
             o.select_set(True)

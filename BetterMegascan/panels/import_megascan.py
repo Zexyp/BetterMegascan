@@ -41,7 +41,8 @@ class BETTERMS_PT_import_filetypes(bpy.types.Panel):
         operator = sfile.active_operator
 
         return operator.bl_idname in [bpy.ops.betterms.import_3dasset.idname(),
-                                      bpy.ops.betterms.import_surface.idname()]
+                                      bpy.ops.betterms.import_surface.idname(),
+                                      bpy.ops.betterms.import_brush.idname()]
 
     def draw(self, context):
         layout = self.layout

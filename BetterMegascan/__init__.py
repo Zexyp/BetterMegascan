@@ -14,11 +14,15 @@ import bpy
 import logging
 import os
 
-log = logging.Logger(__name__)
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", "%H:%M:%S"))
-log.addHandler(handler)
+def spawn_logger(name) -> logging.Logger:
+    logger = logging.Logger(name)
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", "%H:%M:%S"))
+    logger.addHandler(handler)
+    return logger
+
+log = spawn_logger(__name__)
 
 from .operators import *
 from .panels import *
@@ -41,6 +45,7 @@ classes = (
     BETTERMS_OT_init_import_menu,
     BETTERMS_OT_import_3dasset,
     BETTERMS_OT_import_surface,
+    BETTERMS_OT_import_brush,
 
     BETTERMS_PT_import_collections,
     BETTERMS_PT_import_filetypes,
