@@ -87,6 +87,8 @@ class BETTERMS_PT_import_lods(bpy.types.Panel):
         for i in range(5, 9):
             row.prop(operator, "use_lods", index=i, text=str(BETTERMS_OT_import_3dasset.lod_options[i]))
 
+        layout.prop(operator, "apply_transform")
+
 
 class BETTERMS_PT_import_textures(bpy.types.Panel):
     bl_space_type = 'FILE_BROWSER'

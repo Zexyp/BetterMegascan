@@ -16,7 +16,8 @@ def load_asset(mdata: parser.structures.MegascanData,
                use_filetype_maps: str,
                use_lods: list[int] | tuple[int] | set[int],
                use_maps: list[str] | tuple[str] | set[str],
-               pack_maps: bool):
+               pack_maps: bool,
+               apply_transform: bool = False):
     def add_collection(name):
         collection = bpy.data.collections.new(name)
         bpy.context.collection.children.link(collection)
@@ -70,7 +71,7 @@ def load_asset(mdata: parser.structures.MegascanData,
             match use_filetype_lods:
                 case 'FBX':
                     # use fbx operator
-                    bpy.ops.import_scene.fbx(filepath=fp)
+                    bpy.ops.import_scene.fbx(filepath=fp, bake_space_transform=apply_transform)
                 case 'OBJ':
                     # use obj operator
                     bpy.ops.import_scene.obj(filepath=fp, use_split_objects=True, use_split_groups=True,

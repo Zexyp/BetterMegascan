@@ -149,6 +149,11 @@ class BETTERMS_OT_import_3dasset(BaseImporter):
         default=False,
     )
 
+    apply_transform: BoolProperty(
+        name="Apply Transform",
+        default=False,
+    )
+
     able_to_import = ["3D asset", "3D plant"]
 
     def finxish_execute(self, context) -> set:
@@ -165,7 +170,8 @@ class BETTERMS_OT_import_3dasset(BaseImporter):
                                      use_filetype_maps=self.use_filetype_maps,
                                      use_lods=[self.lod_options[i] for i, e in enumerate(self.use_lods) if e],
                                      use_maps=[self.map_options[i] for i, e in enumerate(self.use_maps) if e],
-                                     pack_maps=os.path.isfile(self.selected_filepath))
+                                     pack_maps=os.path.isfile(self.selected_filepath),
+                                     apply_transform=self.apply_transform)
 
         for o in load_ret["objects"]:
             o.select_set(True)
