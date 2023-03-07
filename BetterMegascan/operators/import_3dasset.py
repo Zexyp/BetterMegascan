@@ -7,6 +7,7 @@ import traceback
 from .base_importer import BaseImporter
 from .. import parser
 from .. import loader
+from .. import ui
 
 from . import log
 
@@ -43,40 +44,6 @@ class BETTERMS_OT_import_3dasset(BaseImporter):
     bl_description = "Load model with material and its textures"
     bl_options = {'UNDO', 'PRESET'}
 
-    lod_options = [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-    ]
-
-    map_options = [
-        "albedo",
-        "cavity",
-        "curvature",
-        "gloss",
-        "normal",
-        "displacement",
-        "bump",
-        "ao",
-        "metalness",
-        "diffuse",
-        "roughness",
-        "specular",
-        "fuzz",
-        "translucency",
-        "thickness",
-        "opacity",
-        "brush",
-        "mask",
-        "transmission",
-    ]
-
     use_filetype_lods: EnumProperty(
         name="Models",
         items=(
@@ -99,7 +66,7 @@ class BETTERMS_OT_import_3dasset(BaseImporter):
 
     use_lods: BoolVectorProperty(
         name="Import LODs",
-        size=len(lod_options),
+        size=len(ui.lod_options),
         default=(
             True,   # 0
             False,  # 1
@@ -115,7 +82,7 @@ class BETTERMS_OT_import_3dasset(BaseImporter):
 
     use_maps: BoolVectorProperty(
         name="Import Maps",
-        size=len(map_options),
+        size=len(ui.map_options),
         default=(
             True,   # albedo
             False,  # cavity

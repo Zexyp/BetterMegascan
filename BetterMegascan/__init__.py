@@ -24,9 +24,10 @@ def spawn_logger(name) -> logging.Logger:
 
 log = spawn_logger(__name__)
 
-from .operators import *
-from .panels import *
-from .menus import *
+from . import operators
+from . import panels
+from . import menus
+
 from . import icons
 from . import parser
 from .preferences import BETTERMS_AddonPreferences
@@ -36,24 +37,19 @@ parser.tmp_dir = os.path.join(bpy.app.tempdir, 'BetterMegascan')
 
 
 def menu_func_import(self, context):
-    self.layout.operator(BETTERMS_OT_init_import_menu.bl_idname, icon_value=icons.icons["megascans"].icon_id)
+    layout = self.layout
+    layout.operator(operators.BETTERMS_OT_init_import_menu.bl_idname, icon_value=icons.icons["megascans"].icon_id)
+    layout.separator()
+    layout.operator(operators.BETTERMS_OT_bake_library_helper.bl_idname, icon='ASSET_MANAGER')
 
 
-classes = (
-    BETTERMS_MT_import,
-
-    BETTERMS_OT_init_import_menu,
-    BETTERMS_OT_import_3dasset,
-    BETTERMS_OT_import_surface,
-    BETTERMS_OT_import_brush,
-
-    BETTERMS_PT_import_collections,
-    BETTERMS_PT_import_filetypes,
-    BETTERMS_PT_import_lods,
-    BETTERMS_PT_import_textures,
+classes = [
+    *menus.classes,
+    *operators.classes,
+    *panels.classes,
 
     BETTERMS_AddonPreferences,
-)
+]
 
 register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 

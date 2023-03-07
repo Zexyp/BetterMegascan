@@ -5,7 +5,7 @@ from bpy.props import StringProperty
 
 import os
 import traceback
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 
 from .. import parser
 from .. import loader

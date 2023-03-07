@@ -7,6 +7,7 @@ import traceback
 from .base_importer import BaseImporter
 from .. import parser
 from .. import loader
+from .. import ui
 
 from . import log
 
@@ -16,28 +17,6 @@ class BETTERMS_OT_import_surface(BaseImporter):
     bl_label = "Surface"
     bl_description = "Load material and its textures"
     bl_options = {'UNDO', 'PRESET'}
-
-    map_options = [
-        "albedo",
-        "cavity",
-        "curvature",
-        "gloss",
-        "normal",
-        "displacement",
-        "bump",
-        "ao",
-        "metalness",
-        "diffuse",
-        "roughness",
-        "specular",
-        "fuzz",
-        "translucency",
-        "thickness",
-        "opacity",
-        "brush",
-        "mask",
-        "transmission",
-    ]
 
     use_filetype_maps: EnumProperty(
         name="Textures",
@@ -51,7 +30,7 @@ class BETTERMS_OT_import_surface(BaseImporter):
 
     use_maps: BoolVectorProperty(
         name="Import Maps",
-        size=len(map_options),
+        size=len(ui.map_options),
         default=(
             True,   # albedo
             False,  # cavity
