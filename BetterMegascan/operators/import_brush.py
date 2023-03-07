@@ -30,9 +30,9 @@ class BETTERMS_OT_import_brush(BaseImporter):
 
     def finish_execute(self, context) -> set:
         load_ret = loader.load_brush(self.mdata,
-                                     self.filepath,
+                                     self.dir_path,
                                      use_filetype_maps=self.use_filetype_maps,
-                                     pack_maps=os.path.isfile(self.selected_filepath))
+                                     pack_maps=os.path.isfile(self.dir_path))
 
         if load_ret["texture"] is None:
             self.report({'WARNING'}, f"No desired map found.")

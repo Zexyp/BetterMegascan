@@ -32,11 +32,14 @@ map_options = [
     "transmission",
 ]
 
-def collections(layout, operator):
+def group(layout, operator):
     layout.prop(operator, "group_by_model")
     layout.prop(operator, "group_by_lod")
 
+
 def lods(layout, operator):
+    layout.prop(operator, "apply_transform")
+
     col = layout.column(heading="LODs", align=True)
     col.prop(operator, "use_lods", index=0, text=str(lod_options[0]))
     row = layout.row()
@@ -46,15 +49,16 @@ def lods(layout, operator):
     for i in range(5, 9):
         row.prop(operator, "use_lods", index=i, text=str(lod_options[i]))
 
-    layout.prop(operator, "apply_transform")
 
 def maps(layout, operator):
     col = layout.column(heading="Maps", align=True)
     for i, omap in enumerate(map_options):
         col.prop(operator, "use_maps", index=i, text=omap)
 
+
 def filetype_lods(layout, operator):
-    pass
+    layout.prop(operator, "use_filetype_lods")
+
 
 def filetype_maps(layout, operator):
-    pass
+    layout.prop(operator, "use_filetype_maps")

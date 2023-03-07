@@ -4,7 +4,7 @@ from bpy.types import Panel
 
 from abc import abstractmethod
 
-from ..operators import BETTERMS_OT_import_3dasset, BETTERMS_OT_import_surface
+from ..operators import BETTERMS_OT_import_asset, BETTERMS_OT_import_surface
 from .. import ui
 
 class BaseFilePanel(Panel):
@@ -32,11 +32,11 @@ class BaseFilePanel(Panel):
     @classmethod
     @abstractmethod
     def draw_on(cls) -> list[str]:
-        raise NotImplemented
+        raise NotImplementedError
 
     @abstractmethod
     def draw_ui(self, layout, operator):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class BETTERMS_PT_import_collections(BaseFilePanel):
@@ -44,11 +44,11 @@ class BETTERMS_PT_import_collections(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_3dasset.idname()
+            bpy.ops.betterms.import_asset.idname()
         ]
 
     def draw_ui(self, layout, operator):
-        ui.collections(layout, operator)
+        ui.group(layout, operator)
 
 
 class BETTERMS_PT_import_filetypes(BaseFilePanel):
@@ -56,15 +56,15 @@ class BETTERMS_PT_import_filetypes(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_3dasset.idname(),
+            bpy.ops.betterms.import_asset.idname(),
             bpy.ops.betterms.import_surface.idname(),
             bpy.ops.betterms.import_brush.idname()
         ]
 
     def draw_ui(self, layout, operator):
-        if operator.bl_idname == bpy.ops.betterms.import_3dasset.idname():
-            layout.prop(operator, "use_filetype_lods")
-        layout.prop(operator, "use_filetype_maps")
+        if operator.bl_idname == bpy.ops.betterms.import_asset.idname():
+            ui.filetype_lods(layout, operator)
+        ui.filetype_maps(layout, operator)
 
 
 class BETTERMS_PT_import_lods(BaseFilePanel):
@@ -72,7 +72,7 @@ class BETTERMS_PT_import_lods(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_3dasset.idname()
+            bpy.ops.betterms.import_asset.idname()
         ]
 
     def draw_ui(self, layout, operator):
@@ -84,7 +84,7 @@ class BETTERMS_PT_import_textures(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_3dasset.idname(),
+            bpy.ops.betterms.import_asset.idname(),
             bpy.ops.betterms.import_surface.idname()
         ]
 

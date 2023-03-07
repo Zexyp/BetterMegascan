@@ -1,3 +1,7 @@
+"""
+yes, it is a bit messy
+"""
+
 import bpy
 
 import logging
@@ -117,7 +121,7 @@ def load_asset(mdata: parser.structures.MegascanData,
     for o in loaded_objects:
         for m in o.data.materials:
             bpy.data.materials.remove(m)
-        o.data.materials[0] = mat_ret["material"]
+        o.data.materials.append(mat_ret["material"])
 
     ret = {"objects": loaded_objects}
     ret.update(mat_ret)

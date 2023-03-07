@@ -135,9 +135,7 @@ def _parse_json_components(mdata: MegascanData, jel, dirfiles: list[str]):
                         mmap.lods[mmaplod.level][mmaplod.filetype] = mmaplod
 
 
-def _parse_json(mdata: MegascanData, jsondata, dirfiles: list[str]):
-    jroot = json.loads(jsondata)
-
+def _parse_json_megascan(mdata: MegascanData, jroot, dirfiles: list[str]):
     try:
         mdata.type = jroot["semanticTags"]["asset_type"]
         mdata.name = jroot["name"]
@@ -150,12 +148,12 @@ def _parse_json(mdata: MegascanData, jsondata, dirfiles: list[str]):
             case "3D plant":
                 _parse_json_models(mdata, jroot["models"], dirfiles)
                 _parse_json_maps(mdata, jroot["maps"], dirfiles)
-            case "surface" | "decal" | "brush":
+            case "surface" | "decal" | "brush" | "imperfection":
                 _parse_json_maps(mdata, jroot["maps"], dirfiles)
             case "atlas":
                 _parse_json_components(mdata, jroot["components"], dirfiles)
             case _:
-                raise InvalidStructureError("unknown asset type")
+                raise InvalidStructureError(f"unknown asset type '{mdata.type}'")
     except KeyError as ke:
         raise InvalidStructureError("json seems to be invalid") from ke
 
@@ -175,6 +173,23 @@ def _find_json(path):
     log.debug(f"metadata json: {metajson}")
     return metajson
 
+def parse(filepath: str) -> MegascanData:
+    dirpath = os.path.dirname(filepath)
+    dirfiles = []
+    for root, _, files in os.walk(dirpath):
+        for file in files:
+            relativefilepath = os.path.relpath(os.path.join(root, file), dirpath).replace('\\', '/')
+            dirfiles.append(relativefilepath)
+
+    mdata = MegascanData()
+
+    # json parsing
+    with open(filepath, mode='r') as jsonfile:
+        jroot = json.loads(jsonfile.read())
+        _parse_json_megascan(mdata, jroot, dirfiles)
+
+    return mdata
+
 
 def parse_zip(path: str) -> MegascanData:
     log.debug(f"reading zip {path}")
@@ -187,29 +202,35 @@ def parse_zip(path: str) -> MegascanData:
         mdata = MegascanData()
         # json parsing
         with arch.open(metajson, mode='r') as jsonfile:
-            _parse_json(mdata, jsonfile.read(), archfiles)
+            jroot = json.load(jsonfile)
+            _parse_json_megascan(mdata, jroot, archfiles)
 
         return mdata
 
 
-def parse(path: str) -> MegascanData:
-    log.debug(f"reading {path}")
-
-    dirfiles = []
-    for root, _, files in os.walk(path):
-        for file in files:
-            relativefilepath = os.path.relpath(os.path.join(root, file), path).replace('\\', '/')
-            dirfiles.append(relativefilepath)
+def parse_dir(path: str) -> MegascanData:
+    log.debug(f"reading dir {path}")
 
     metajson = os.path.join(path, _find_json(Path(path)))
+    return parse(metajson)
 
-    mdata = MegascanData()
+
+def parse_library(filepath: str) -> list[MegascanData]:
+    log.debug(f"reading library {filepath}")
+
+    dirname = os.path.dirname(filepath)
+    mdataarr: list[MegascanData] = []
     # json parsing
-    with open(metajson, mode='r') as jsonfile:
-        _parse_json(mdata, jsonfile.read(), dirfiles)
+    with open(filepath, mode='r') as jsonfile:
+        jroot = json.load(jsonfile)
+        try:
+            for jmegascan in jroot:
+                mspath = os.path.join(dirname, *jmegascan["jsonPath"])
+                mdataarr.append(parse(mspath))
+        except KeyError as ke:
+            raise InvalidStructureError("json seems to be invalid") from ke
 
-    return mdata
-
+    return mdataarr
 
 def extract_from_zip(source: str, path_in_zip: str, destination: str) -> str:
     with ZipFile(source) as arch:
@@ -230,7 +251,11 @@ def ensure_file(source: str, path: str) -> str:
 if __name__ == '__main__':
     from pprint import pprint
 
-    mdata = parse_zip(r"test-file-here")
+    mdataarr = parse_library(r"E:\Megascans Library\Downloaded\assetsData.json")
+    pprint(mdataarr)
+    mdata = parse_zip(r"test-zip-file-here")
     pprint(mdata)
-    mdata = parse(r"test-directory-here")
+    mdata = parse(r"test-file-here")
+    pprint(mdata)
+    mdata = parse_dir(r"test-directory-here")
     pprint(mdata)

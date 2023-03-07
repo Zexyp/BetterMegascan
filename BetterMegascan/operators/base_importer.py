@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
-from bpy.props import StringProperty
+from bpy.props import StringProperty, EnumProperty, BoolVectorProperty, BoolProperty
 
 import os
 import traceback
@@ -9,21 +9,20 @@ from abc import abstractmethod
 
 from .. import parser
 from .. import loader
+from .. import ui
 
 from . import log
 
 
 class BaseImporter(Operator, ImportHelper):
-    # ImportHelper mixin class uses this
-    filename_ext = ".zip"
     filter_glob: StringProperty(
-        default="*.zip",
+        default="*.zip;*.json",
         options={'HIDDEN'}
     )
 
     def __init__(self):
         self.mdata: parser.structures.MegascanData = None
-        self.selected_filepath: str = None
+        self.dir_path: str = None
 
     def draw(self, context):
         pass
@@ -32,18 +31,21 @@ class BaseImporter(Operator, ImportHelper):
         if not self.filepath:
             return {'CANCELLED'}
 
-        self.selected_filepath = self.filepath
-
-        if not os.path.exists(self.selected_filepath):
-            selected_filepath = os.path.dirname(self.selected_filepath)
-
-        log.debug(f"selected {self.selected_filepath}")
+        log.debug(f"selected {self.filepath}")
 
         try:
-            if os.path.isfile(self.selected_filepath):
-                self.mdata = parser.parse_zip(self.selected_filepath)
-            if os.path.isdir(self.selected_filepath):
-                self.mdata = parser.parse(self.selected_filepath)
+            ext = os.path.splitext(self.filepath)[1]
+            match ext:
+                case ".zip":
+                    self.mdata = parser.parse_zip(self.filepath)
+                    self.dir_path = self.filepath
+                case ".json":
+                    self.mdata = parser.parse(self.filepath)
+                    self.dir_path = os.path.dirname(self.filepath)
+                case _:
+                    log.debug(f"unexpected extension {ext}")
+                    self.report({"ERROR"}, "Unexpected file extension.")
+                    return {'CANCELLED'}
         except parser.InvalidStructureError:
             log.debug(traceback.format_exc())
             self.report({'ERROR'}, "Structure was not recognized.")
@@ -59,3 +61,82 @@ class BaseImporter(Operator, ImportHelper):
     @abstractmethod
     def finish_execute(self, context) -> set:
         raise NotImplementedError
+
+class SurfaceImportProps:
+    use_filetype_maps: EnumProperty(
+        name="Textures",
+        items=(
+            ('PREFER_EXR', "Prefer EXR", "Fallback is JPEG"),
+            ('JPEG', "JPEG only", "(.jpeg/.jpg)"),
+            ('EXR', "EXR only", "(.exr)")
+        ),
+        default='PREFER_EXR',
+    )
+
+    use_maps: BoolVectorProperty(
+        name="Import Maps",
+        size=len(ui.map_options),
+        default=(
+            True,  # albedo
+            False,  # cavity
+            False,  # curvature
+            False,  # gloss
+            True,  # normal
+            False,  # displacement
+            False,  # bump
+            False,  # ao
+            True,  # metalness
+            False,  # diffuse
+            True,  # roughness
+            False,  # specular
+            False,  # fuzz
+            False,  # translucency
+            False,  # thickness
+            True,  # opacity
+            False,  # brush
+            False,  # mask
+            False,  # transmission
+        )
+    )
+
+class AssetImportProps(SurfaceImportProps):
+    use_filetype_lods: EnumProperty(
+        name="Models",
+        items=(
+            ('FBX', "FBX", "Filmbox (.fbx)"),
+            ('OBJ', "OBJ", "Wavefront (.obj)"),
+            ('ABC', "ABC", "Alembic (.abc)")
+        ),
+        default='FBX',
+    )
+
+    use_lods: BoolVectorProperty(
+        name="Import LODs",
+        size=len(ui.lod_options),
+        default=(
+            True,  # 0
+            False,  # 1
+            False,  # 2
+            False,  # 3
+            False,  # 4
+            False,  # 5
+            False,  # 6
+            False,  # 7
+            False,  # 8
+        )
+    )
+
+    group_by_model: BoolProperty(
+        name="Group Models",
+        default=True,
+    )
+
+    group_by_lod: BoolProperty(
+        name="Group LODs",
+        default=False,
+    )
+
+    apply_transform: BoolProperty(
+        name="Apply Transform",
+        default=False,
+    )

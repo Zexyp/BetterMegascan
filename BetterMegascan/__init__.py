@@ -9,6 +9,10 @@ bl_info = {
     "category": "Import-Export"
 }
 
+"""
+Megascan? more like Mega Scan because it's such a pain to work with
+"""
+
 import bpy
 
 import logging
@@ -40,7 +44,7 @@ def menu_func_import(self, context):
     layout = self.layout
     layout.operator(operators.BETTERMS_OT_init_import_menu.bl_idname, icon_value=icons.icons["megascans"].icon_id)
     layout.separator()
-    layout.operator(operators.BETTERMS_OT_bake_library_helper.bl_idname, icon='ASSET_MANAGER')
+    layout.operator(operators.BETTERMS_OT_bake_library.bl_idname, icon='ASSET_MANAGER')
 
 
 classes = [
