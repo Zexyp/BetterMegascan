@@ -1,6 +1,8 @@
 # BetterMegascan
 Simple addon to help you import Megascans into your Blender scenes withou having bridge installed.
 
+Be sure file any bug reports and feature requests.
+
 ## Features
 Allows import of:
   - 3D Assets (plants)
