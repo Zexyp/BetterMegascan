@@ -33,8 +33,9 @@ map_options = [
 ]
 
 def group(layout, operator):
-    layout.prop(operator, "group_by_model")
-    layout.prop(operator, "group_by_lod")
+    col = layout.column(heading="Group", align=True)
+    col.prop(operator, "group_by_model", text="Asset")
+    col.prop(operator, "group_by_lod", text="LODs")
 
 
 def lods(layout, operator):

@@ -6,6 +6,8 @@ from bpy.props import StringProperty, BoolProperty, BoolVectorProperty
 import os
 
 from . import log
+from .. import parser
+from .. import loader
 from .. import ui
 from .base_importer import AssetImportProps
 
@@ -47,8 +49,28 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         )
     )
 
+    generate_previews: BoolProperty(
+        name="Generate Previews",
+        description="Generates previews for all assets",
+        default=True,
+    )
+
+    use_collections: BoolProperty(
+        name="Use Collections",
+        description="Encapsulate models in collections",
+        default=False,
+    )
+
+    split_models: BoolProperty(
+        name="Split Models",
+        description="Split individual models or variants",
+        default=True,
+    )
+
     def draw(self, context):
         layout = self.layout
+
+        layout.prop(self, "generate_previews")
 
         split = layout.split()
 
@@ -62,13 +84,23 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
 
         split = layout.split()
 
-        box = split.column().box()
+        column = split.column()
+        column.label(text="Asset")
+        column.prop(self, "use_collections")
+        column.prop(self, "split_models")
+
+        box = column.box()
+        column.enabled = any(self.include_assets)
+
         ui.filetype_lods(box, self)
         ui.group(box, self)
         ui.lods(box, self)
-        box.enabled = any(self.include_assets)
 
-        box = split.column().box()
+        column = split.column()
+        column.label(text="Surface")
+
+        box = column.box()
+
         ui.filetype_maps(box, self)
         ui.maps(box, self)
 
@@ -80,6 +112,22 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
             self.report({'WARNING'}, "Nothing to bake.")
             return {'CANCELLED'}
 
+        mdataarr = parser.parse_library(self.filepath)
 
+        loader.load_library(
+            mdataarr=mdataarr,
+            group_by_model=self.group_by_model,
+            group_by_lod=self.group_by_lod,
+            use_filetype_lods=self.use_filetype_lods,
+            use_filetype_maps=self.use_filetype_maps,
+            split_models=self.split_models,
+            use_collections=self.use_collections,
+            generate_previews=self.generate_previews,
+            apply_transform=self.apply_transform,
+            use_lods=[ui.lod_options[i] for i, e in enumerate(self.use_lods) if e],
+            use_maps=[ui.map_options[i] for i, e in enumerate(self.use_maps) if e],
+            include_assets=[self.include_assets_options[i] for i, e in enumerate(self.include_assets) if e],
+            include_surfaces=[self.include_surfaces_options[i] for i, e in enumerate(self.include_surfaces) if e]
+        )
 
         return {'FINISHED'}

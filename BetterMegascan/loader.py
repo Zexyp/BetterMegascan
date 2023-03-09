@@ -4,7 +4,7 @@ yes, it is a bit messy
 
 import bpy
 
-import logging
+import os
 
 from . import parser
 from . import spawn_logger
@@ -86,12 +86,14 @@ def load_asset(mdata: parser.structures.MegascanData,
             loaded_objects.extend(bpy.context.selected_objects)
 
     def load_models(mdata):
+        cols = [] if len(mdata.models) else None
         for keymodel in mdata.models:
             # create new collection for model and change collection context
             prevmodelcol = None
             if group_by_lod:
                 col = add_collection(keymodel)
                 prevmodelcol = activate_collection(col)
+                cols.append(col)
 
             load_model(mdata.models[keymodel])
 
@@ -99,15 +101,18 @@ def load_asset(mdata: parser.structures.MegascanData,
             if group_by_lod:
                 activate_collection(prevmodelcol)
 
+        return {"model_collections": cols}
+
     log.debug(f"loading asset {mdata.name}")
 
     # create new collection for asset and change collection context
     prevcol = None
+    newcol = None
     if group_by_model:
-        col = add_collection(mdata.name)
-        prevcol = activate_collection(col)
+        newcol = add_collection(mdata.name)
+        prevcol = activate_collection(newcol)
 
-    load_models(mdata)
+    mod_ret = load_models(mdata)
 
     # change back collection context
     if group_by_model:
@@ -119,11 +124,15 @@ def load_asset(mdata: parser.structures.MegascanData,
                              pack_maps=pack_maps)
 
     for o in loaded_objects:
-        for m in o.data.materials:
-            bpy.data.materials.remove(m)
+        while len(o.data.materials):
+            bpy.data.materials.remove(o.data.materials.pop())
         o.data.materials.append(mat_ret["material"])
 
-    ret = {"objects": loaded_objects}
+    ret = {
+        "objects": loaded_objects,
+        "collection": newcol,
+    }
+    ret.update(mod_ret)
     ret.update(mat_ret)
     return ret
 
@@ -215,14 +224,7 @@ def load_material(mdata: parser.structures.MegascanData,
 
     # ["sRGB", "Non-Color", "Linear"]
 
-    if "albedo" in loaded_images:
-        if "ao" in loaded_images:
-            create_texture_multiply_node("albedo", "ao", (-250, 320),
-                                              (-640, 460), (-640, 200),
-                                              "sRGB", "Non-Color",
-                                              parentnode, "Base Color")
-        else:
-            create_texture_node("albedo", (-640, 420), "sRGB", parentnode, "Base Color")
+    # albedo is last so the correct texture is selected
 
     if "metalness" in loaded_images:
         create_texture_node("metalness", (-1150, 200), "Non-Color", parentnode, "Metallic")
@@ -276,6 +278,15 @@ def load_material(mdata: parser.structures.MegascanData,
 
     # if "displacement" in .loaded_images and is not high poly:
     #    .create_displacement_setup(True)
+
+    if "albedo" in loaded_images:
+        if "ao" in loaded_images:
+            create_texture_multiply_node("albedo", "ao", (-250, 320),
+                                              (-640, 460), (-640, 200),
+                                              "sRGB", "Non-Color",
+                                              parentnode, "Base Color")
+        else:
+            create_texture_node("albedo", (-640, 420), "sRGB", parentnode, "Base Color")
 
     return {"material": material, "images": loaded_images}
 
@@ -333,3 +344,81 @@ def load_map(mmap: parser.structures.MegascanMap,
             image.pack()
         return image
     return None
+
+
+def load_library(mdataarr: list[parser.structures.MegascanData],
+                 group_by_model: bool,
+                 group_by_lod: bool,
+                 use_filetype_lods: str,
+                 use_filetype_maps: str,
+                 use_lods: list[int] | tuple[int] | set[int],
+                 use_maps: list[str] | tuple[str] | set[str],
+                 include_assets: list[str] | tuple[str] | set[str],
+                 include_surfaces: list[str] | tuple[str] | set[str],
+                 split_models: bool,
+                 use_collections: bool,
+                 generate_previews: bool,
+                 apply_transform: bool = False):
+    # utility function
+    def add_asset(asset):
+        # add
+        asset.asset_mark()
+
+        # optional
+        if generate_previews:
+            asset.asset_generate_preview()
+
+    for mdata in [d for d in mdataarr if
+                  d.type in include_assets]:
+        dirpath = os.path.dirname(mdata.path)
+
+        ret = load_asset(
+            mdata=mdata,
+            filepath=dirpath,
+            group_by_model=group_by_model,
+            group_by_lod=group_by_lod,
+            use_filetype_lods=use_filetype_lods,
+            use_filetype_maps=use_filetype_maps,
+            use_lods=use_lods,
+            use_maps=use_maps,
+            pack_maps=False,  # this would let your lovely blender pc explode
+            apply_transform=apply_transform)
+
+        # decide the way to split models
+        if split_models:
+            if use_collections and ret["model_collections"]:
+                [add_asset(c) for c in ret["model_collections"]]
+            else:
+                [add_asset(o) for o in ret["objects"]]
+        else:
+            if use_collections and ret["collection"]:
+                add_asset(ret["collection"])
+            else:
+                [add_asset(o) for o in ret["objects"]]
+
+        # hide
+        hidden = False
+        if ret["collection"]:
+            ret["collection"].hide_viewport = True
+            hidden = True
+        if ret["model_collections"] and not hidden:
+            for c in ret["model_collections"]:
+                c.hide_viewport = True
+            hidden = True
+        if not hidden:
+            for o in ret["objects"]:
+                o.hide_viewport = True
+            hidden = True
+
+    for mdata in [d for d in mdataarr if
+                  d.type in include_surfaces]:
+        dirpath = os.path.dirname(mdata.path)
+
+        ret = load_material(
+            mdata=mdata,
+            filepath=dirpath,
+            use_filetype_maps=use_filetype_maps,
+            use_maps=use_maps,
+            pack_maps=False)
+
+        add_asset(ret["material"])

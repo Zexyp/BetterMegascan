@@ -4,7 +4,7 @@ from ..menus import BETTERMS_MT_import
 from .. import preferences
 
 class BETTERMS_OT_init_import_menu(bpy.types.Operator):
-    bl_idname = "betterms.init_menu"
+    bl_idname = "betterms.init_import_menu"
     bl_label = "Megascan"
     bl_description = "Load a Megascan asset (works for both directory and .zip)"
 

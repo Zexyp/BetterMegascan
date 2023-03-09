@@ -62,9 +62,11 @@ class BaseImporter(Operator, ImportHelper):
     def finish_execute(self, context) -> set:
         raise NotImplementedError
 
+
 class SurfaceImportProps:
     use_filetype_maps: EnumProperty(
         name="Textures",
+        description="Determines which image filetype will be used",
         items=(
             ('PREFER_EXR', "Prefer EXR", "Fallback is JPEG"),
             ('JPEG', "JPEG only", "(.jpeg/.jpg)"),
@@ -75,33 +77,36 @@ class SurfaceImportProps:
 
     use_maps: BoolVectorProperty(
         name="Import Maps",
+        description="Select all PBR maps to look for",
         size=len(ui.map_options),
         default=(
-            True,  # albedo
+            True,   # albedo
             False,  # cavity
             False,  # curvature
             False,  # gloss
-            True,  # normal
+            True,   # normal
             False,  # displacement
             False,  # bump
             False,  # ao
-            True,  # metalness
+            True,   # metalness
             False,  # diffuse
-            True,  # roughness
+            True,   # roughness
             False,  # specular
             False,  # fuzz
             False,  # translucency
             False,  # thickness
-            True,  # opacity
+            True,   # opacity
             False,  # brush
             False,  # mask
             False,  # transmission
         )
     )
 
+
 class AssetImportProps(SurfaceImportProps):
     use_filetype_lods: EnumProperty(
         name="Models",
+        description="Determines which model filetype will be used",
         items=(
             ('FBX', "FBX", "Filmbox (.fbx)"),
             ('OBJ', "OBJ", "Wavefront (.obj)"),
@@ -112,6 +117,7 @@ class AssetImportProps(SurfaceImportProps):
 
     use_lods: BoolVectorProperty(
         name="Import LODs",
+        description="Select all LODs to look for",
         size=len(ui.lod_options),
         default=(
             True,  # 0
@@ -127,16 +133,19 @@ class AssetImportProps(SurfaceImportProps):
     )
 
     group_by_model: BoolProperty(
-        name="Group Models",
+        name="Group Asset",
+        description="Create a collection for the asset",
         default=True,
     )
 
     group_by_lod: BoolProperty(
         name="Group LODs",
+        description="Create a collection for each model's LODs",
         default=False,
     )
 
     apply_transform: BoolProperty(
         name="Apply Transform",
+        description="Models might get rotated to meet the desired orientation. This option will afterwards apply the transformation",
         default=False,
     )

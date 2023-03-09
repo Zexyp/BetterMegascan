@@ -95,8 +95,14 @@ def _parse_json_maps(mdata: MegascanData, jel, dirfiles: list[str]):
 
         log.debug(f"found map:\n{pformat(mmaplod)}")
 
+        # monkey proofing
+        maptype = jmap["type"]
+        if maptype not in jmap["uri"].lower():
+            log.warning("monkey moment, hold tight this might not work")
+            maptype = re.search(r"(?s:.*)_(.*)\.", jmap["uri"]).group(1).lower()
+
         # get or add the map
-        mmap = mdata.get_or_create_map(jmap["type"])
+        mmap = mdata.get_or_create_map(maptype)
 
         # add to collection
         if mmaplod.level not in mmap.lods:
@@ -140,6 +146,7 @@ def _parse_json_megascan(mdata: MegascanData, jroot, dirfiles: list[str]):
         mdata.type = jroot["semanticTags"]["asset_type"]
         mdata.name = jroot["name"]
         mdata.id = jroot["id"]
+        mdata.tags = jroot["tags"]
 
         match mdata.type:
             case "3D asset":
@@ -154,8 +161,8 @@ def _parse_json_megascan(mdata: MegascanData, jroot, dirfiles: list[str]):
                 _parse_json_components(mdata, jroot["components"], dirfiles)
             case _:
                 raise InvalidStructureError(f"unknown asset type '{mdata.type}'")
-    except KeyError as ke:
-        raise InvalidStructureError("json seems to be invalid") from ke
+    except (KeyError, TypeError) as e:
+        raise InvalidStructureError("json seems to be invalid") from e
 
 
 def _find_json(path):
@@ -182,6 +189,7 @@ def parse(filepath: str) -> MegascanData:
             dirfiles.append(relativefilepath)
 
     mdata = MegascanData()
+    mdata.path = filepath
 
     # json parsing
     with open(filepath, mode='r') as jsonfile:
@@ -227,8 +235,8 @@ def parse_library(filepath: str) -> list[MegascanData]:
             for jmegascan in jroot:
                 mspath = os.path.join(dirname, *jmegascan["jsonPath"])
                 mdataarr.append(parse(mspath))
-        except KeyError as ke:
-            raise InvalidStructureError("json seems to be invalid") from ke
+        except (KeyError, TypeError) as e:
+            raise InvalidStructureError("json seems to be invalid") from e
 
     return mdataarr
 
@@ -251,11 +259,11 @@ def ensure_file(source: str, path: str) -> str:
 if __name__ == '__main__':
     from pprint import pprint
 
+    mdata = parse(r"E:\Megascans Library\Downloaded\3dplant\plants _3d_sbslY\sbslY.json")
+    pprint(mdata)
     mdataarr = parse_library(r"E:\Megascans Library\Downloaded\assetsData.json")
     pprint(mdataarr)
     mdata = parse_zip(r"test-zip-file-here")
-    pprint(mdata)
-    mdata = parse(r"test-file-here")
     pprint(mdata)
     mdata = parse_dir(r"test-directory-here")
     pprint(mdata)

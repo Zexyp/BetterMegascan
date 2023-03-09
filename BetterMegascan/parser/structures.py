@@ -32,9 +32,11 @@ class MegascanMap:
 
 @dataclass
 class MegascanData:
+    path: str = None
     type: str = None
     id: str = None
     name: str = None
+    tags: list[str] = None
 
     #            name
     models: dict[str, MegascanModel] = field(default_factory=lambda: {})
