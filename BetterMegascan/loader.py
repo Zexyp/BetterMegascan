@@ -358,15 +358,19 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
                  split_models: bool,
                  use_collections: bool,
                  generate_previews: bool,
-                 apply_transform: bool = False):
+                 apply_transform: bool = False,
+                 use_tags: bool = False):
     # utility function
-    def add_asset(asset):
+    def add_asset(asset, mdata):
         # add
         asset.asset_mark()
 
         # optional
         if generate_previews:
             asset.asset_generate_preview()
+        if use_tags:
+            for tag in mdata.tags:
+                asset.asset_data.tags.new(tag)
 
     for mdata in [d for d in mdataarr if
                   d.type in include_assets]:
@@ -387,14 +391,14 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
         # decide the way to split models
         if split_models:
             if use_collections and ret["model_collections"]:
-                [add_asset(c) for c in ret["model_collections"]]
+                [add_asset(c, mdata) for c in ret["model_collections"]]
             else:
-                [add_asset(o) for o in ret["objects"]]
+                [add_asset(o, mdata) for o in ret["objects"]]
         else:
             if use_collections and ret["collection"]:
-                add_asset(ret["collection"])
+                add_asset(ret["collection"], mdata)
             else:
-                [add_asset(o) for o in ret["objects"]]
+                [add_asset(o, mdata) for o in ret["objects"]]
 
         # hide
         hidden = False
@@ -421,4 +425,4 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
             use_maps=use_maps,
             pack_maps=False)
 
-        add_asset(ret["material"])
+        add_asset(ret["material"], mdata)

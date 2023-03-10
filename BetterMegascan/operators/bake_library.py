@@ -30,23 +30,20 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         "surface", "decal", "atlas",
     ]
 
+    additional_tags_options = [
+        "contains", "theme", "descriptive", "collection", "environment", "state", "color", "industry"
+    ]
+
     include_assets: BoolVectorProperty(
         name="Include Assets",
         size=len(include_assets_options),
-        default=(
-            True,
-            True,
-        )
+        default=(True,) * len(include_assets_options)
     )
 
     include_surfaces: BoolVectorProperty(
         name="Include Surfaces",
         size=len(include_surfaces_options),
-        default=(
-            True,
-            True,
-            True,
-        )
+        default=(True,) * len(include_surfaces_options)
     )
 
     generate_previews: BoolProperty(
@@ -67,40 +64,60 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         default=True,
     )
 
+    use_tags: BoolProperty(
+        name="Tags",
+        description="Apply asset tags to asset in library",
+        default=True,
+    )
+
+    additional_tags: BoolVectorProperty(
+        name="Additional Tags",
+        size=len(additional_tags_options),
+        default=(False,) * len(additional_tags_options)
+    )
+
     def draw(self, context):
         layout = self.layout
 
+        # general
         layout.prop(self, "generate_previews")
 
+        # tags
+        layout.prop(self, "use_tags", expand=True)
+        layout.label(text="Additional Tags")
+        box = layout.box()
+        box.enabled = self.use_tags
+        column = box.column(heading="Semantic")
+        for i, omap in enumerate(self.additional_tags_options):
+            column.prop(self, "additional_tags", index=i, text=omap)
+
         split = layout.split()
 
-        col = split.column(heading="Include Assets", align=True)
+        # includes
+        column = split.column(heading="Include Assets", align=True)
         for i, omap in enumerate(self.include_assets_options):
-            col.prop(self, "include_assets", index=i, text=omap)
-
-        col = split.column(heading="Include Surfaces", align=True)
+            column.prop(self, "include_assets", index=i, text=omap)
+        column = split.column(heading="Include Surfaces", align=True)
         for i, omap in enumerate(self.include_surfaces_options):
-            col.prop(self, "include_surfaces", index=i, text=omap)
+            column.prop(self, "include_surfaces", index=i, text=omap)
 
         split = layout.split()
 
+        # asset
         column = split.column()
         column.label(text="Asset")
         column.prop(self, "use_collections")
         column.prop(self, "split_models")
-
         box = column.box()
         column.enabled = any(self.include_assets)
-
         ui.filetype_lods(box, self)
         ui.group(box, self)
         ui.lods(box, self)
 
+        # surface
         column = split.column()
         column.label(text="Surface")
-
         box = column.box()
-
         ui.filetype_maps(box, self)
         ui.maps(box, self)
 
