@@ -370,7 +370,7 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
             asset.asset_generate_preview()
         if use_tags:
             for tag in mdata.tags:
-                asset.asset_data.tags.new(tag)
+                asset.asset_data.tags.new(tag, skip_if_exists=True)
 
     for mdata in [d for d in mdataarr if
                   d.type in include_assets]:
