@@ -213,6 +213,7 @@ def load_material(mdata: parser.structures.MegascanData,
         return multnode
 
     parentnodename = "Principled BSDF"
+    outputnodename = "Material Output"
     parentnode = nodes.get(parentnodename)
     # outnodename = "Material Output"
 
@@ -276,9 +277,26 @@ def load_material(mdata: parser.structures.MegascanData,
 
         connect_nodes(parentnode, bumpnode, "Normal")
 
-    # if "displacement" in .loaded_images and is not high poly:
-    #    .create_displacement_setup(True)
+    # avoid displacement if is high poly - not implemented
+    if "displacement" in loaded_images:
+        if bpy.context.scene.cycles.feature_set == 'EXPERIMENTAL':
+            dispnode = create_generic_node("ShaderNodeDisplacement", (10, -400))
+            dispnode.inputs["Scale"].default_value = 0.1
+            dispnode.inputs["Midlevel"].default_value = 0
 
+            splitnode = create_generic_node("ShaderNodeSeparateRGB", (-250, -499))
+            # Import normal map and normal map node setup.
+            dispmap = create_texture_node("displacement", (-640, -740))
+
+            connect_nodes(splitnode, dispmap, "Image", "Color")
+            connect_nodes(dispnode, splitnode, "Height", "R")
+
+            connect_nodes(nodes.get(outputnodename), dispnode, "Displacement", "Displacement")
+            material.cycles.displacement_method = 'BOTH'
+        else:
+            pass
+
+    # albedo map as last so the selected texture is correct
     if "albedo" in loaded_images:
         if "ao" in loaded_images:
             create_texture_multiply_node("albedo", "ao", (-250, 320),
