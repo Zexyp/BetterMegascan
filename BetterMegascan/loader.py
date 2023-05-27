@@ -183,6 +183,7 @@ def load_material(mdata: parser.structures.MegascanData,
 
     def create_texture_node(map_type: str, pos: tuple, colorspace: str = "Non-Color", connect_to=None,
                             connect_at: str = ""):
+        # todo: add coordinate/mapping node
         texnode = create_generic_node('ShaderNodeTexImage', pos)
         texnode.image = loaded_images[map_type]
         texnode.show_texture = True
