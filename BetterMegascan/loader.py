@@ -22,6 +22,7 @@ def load_asset(mdata: parser.structures.MegascanData,
                use_maps: list[str] | tuple[str] | set[str],
                pack_maps: bool,
                apply_transform: bool = False):
+
     def add_collection(name):
         collection = bpy.data.collections.new(name)
         bpy.context.collection.children.link(collection)

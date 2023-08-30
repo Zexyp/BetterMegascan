@@ -8,11 +8,42 @@ import traceback
 from abc import abstractmethod
 
 from .. import parser
-from .. import loader
-from .. import ui
 
 from . import log
 
+lod_options = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+]
+
+map_options = [
+    "albedo",
+    "cavity",
+    "curvature",
+    "gloss",
+    "normal",
+    "displacement",
+    "bump",
+    "ao",
+    "metalness",
+    "diffuse",
+    "roughness",
+    "specular",
+    "fuzz",
+    "translucency",
+    "thickness",
+    "opacity",
+    "brush",
+    "mask",
+    "transmission",
+]
 
 class BaseImporter(Operator, ImportHelper):
     filter_glob: StringProperty(
@@ -78,7 +109,7 @@ class SurfaceImportProps:
     use_maps: BoolVectorProperty(
         name="Import Maps",
         description="Select all PBR maps to look for",
-        size=len(ui.map_options),
+        size=len(map_options),
         default=(
             True,   # albedo
             False,  # cavity
@@ -118,7 +149,7 @@ class AssetImportProps(SurfaceImportProps):
     use_lods: BoolVectorProperty(
         name="Import LODs",
         description="Select all LODs to look for",
-        size=len(ui.lod_options),
+        size=len(lod_options),
         default=(
             True,  # 0
             False,  # 1
