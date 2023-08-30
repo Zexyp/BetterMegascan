@@ -163,8 +163,10 @@ def load_material(mdata: parser.structures.MegascanData,
             if image is not None:
                 loaded_images[mmap.type] = image
 
+    # prepare maps
     load_maps(mdata)
 
+    # init material
     log.debug("creating material")
     material = bpy.data.materials.new(f"{mdata.name}_{mdata.id}")
     material.use_nodes = True
@@ -181,9 +183,16 @@ def load_material(mdata: parser.structures.MegascanData,
     def connect_nodes(node_a, node_b, in_a: int | str = 0, out_b: int | str = 0):
         material.node_tree.links.new(node_a.inputs[in_a], node_b.outputs[out_b])
 
+    # prepare mapping
+    mappingnode = None
+    if mdata.type not in ["3d", "3dplant"]:
+        mappingnode = create_generic_node("ShaderNodeMapping", (-1950, 0))
+        mappingnode.vector_type = 'TEXTURE'
+        texcoordnode = create_generic_node("ShaderNodeTexCoord", (-2150, -200))
+        connect_nodes(mappingnode, texcoordnode, "Vector", "UV")
+
     def create_texture_node(map_type: str, pos: tuple, colorspace: str = "Non-Color", connect_to=None,
                             connect_at: str = ""):
-        # todo: add coordinate/mapping node
         texnode = create_generic_node('ShaderNodeTexImage', pos)
         texnode.image = loaded_images[map_type]
         texnode.show_texture = True
@@ -195,8 +204,8 @@ def load_material(mdata: parser.structures.MegascanData,
         if connect_to:
             connect_nodes(connect_to, texnode, connect_at, 0)
 
-        # if is_cycles and mdata.type not in ["3d", "3dplant"]:
-        #    .mat.node_tree.links.new(textureNode.inputs["Vector"], .mappingNode.outputs["Vector"])
+        if mdata.type not in ["3d", "3dplant"]:
+            connect_nodes(texnode, mappingnode, "Vector", "Vector")
 
         return texnode
 
