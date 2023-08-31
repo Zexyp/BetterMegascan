@@ -401,6 +401,11 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
             for tag in mdata.tags:
                 asset.asset_data.tags.new(tag, skip_if_exists=True)
 
+    # initialize progress bar
+    wm = bpy.context.window_manager
+    progress = 0
+    wm.progress_begin(progress, len(mdataarr))
+
     for mdata in [d for d in mdataarr if
                   d.type in include_assets]:
         dirpath = os.path.dirname(mdata.path)
@@ -443,6 +448,10 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
                 o.hide_viewport = True
             hidden = True
 
+        # update progress
+        progress += 1
+        wm.progress_update(progress)
+
     for mdata in [d for d in mdataarr if
                   d.type in include_surfaces]:
         dirpath = os.path.dirname(mdata.path)
@@ -455,3 +464,10 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
             pack_maps=False)
 
         add_asset(ret["material"], mdata)
+
+        # update progress
+        progress += 1
+        wm.progress_update(progress)
+
+    # finish progress
+    wm.progress_end()
