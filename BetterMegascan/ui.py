@@ -32,6 +32,18 @@ map_options_display_names = [
     "Transmission",
 ]
 
+include_assets_options_display_names = [
+    "3D Asset", "3D Plant",
+]
+
+include_surfaces_options_display_names = [
+    "Surface", "Decal", "Atlas",
+]
+
+additional_tags_options_display_names = [
+    "Contains", "Theme", "Descriptive", "Collection", "Environment", "State", "Color", "Industry"
+]
+
 def group(layout, operator):
     col = layout.column(heading="Group", align=True)
     col.prop(operator, "group_by_model", text="Asset")

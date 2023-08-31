@@ -88,17 +88,17 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         box = layout.box()
         box.enabled = self.use_tags
         column = box.column(heading="Semantic")
-        for i, omap in enumerate(self.additional_tags_options):
+        for i, omap in enumerate(ui.additional_tags_options_display_names):
             column.prop(self, "additional_tags", index=i, text=omap)
 
         split = layout.split()
 
         # includes
         column = split.column(heading="Include Assets", align=True)
-        for i, omap in enumerate(self.include_assets_options):
+        for i, omap in enumerate(ui.include_assets_options_display_names):
             column.prop(self, "include_assets", index=i, text=omap)
         column = split.column(heading="Include Surfaces", align=True)
-        for i, omap in enumerate(self.include_surfaces_options):
+        for i, omap in enumerate(ui.include_surfaces_options_display_names):
             column.prop(self, "include_surfaces", index=i, text=omap)
 
         split = layout.split()
