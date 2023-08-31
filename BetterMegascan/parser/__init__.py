@@ -147,6 +147,8 @@ def _parse_json_megascan(mdata: MegascanData, jroot, dirfiles: list[str]):
         mdata.name = jroot["name"]
         mdata.id = jroot["id"]
         mdata.tags = jroot["tags"]
+        # ! lazy
+        mdata.semanticTags = jroot["semanticTags"]
 
         match mdata.type:
             case "3D asset":

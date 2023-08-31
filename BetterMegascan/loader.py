@@ -388,7 +388,8 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
                  use_collections: bool,
                  generate_previews: bool,
                  apply_transform: bool = False,
-                 use_tags: bool = False):
+                 use_tags: bool = False,
+                 semantic_tags_categories: list[str] = []):
     # utility function
     def add_asset(asset, mdata):
         # add
@@ -400,6 +401,11 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
         if use_tags:
             for tag in mdata.tags:
                 asset.asset_data.tags.new(tag, skip_if_exists=True)
+            for cat in semantic_tags_categories:
+                if cat in mdata.semanticTags:
+                    for tag in mdata.semanticTags[cat]:
+                        asset.asset_data.tags.new(tag, skip_if_exists=True)
+
 
     # initialize progress bar
     wm = bpy.context.window_manager

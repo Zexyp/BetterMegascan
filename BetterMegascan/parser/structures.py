@@ -37,6 +37,7 @@ class MegascanData:
     id: str = None
     name: str = None
     tags: list[str] = None
+    semanticTags: dict[str, list[str]] = None
 
     #            name
     models: dict[str, MegascanModel] = field(default_factory=lambda: {})

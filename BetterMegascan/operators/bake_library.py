@@ -130,7 +130,6 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
             return {'CANCELLED'}
 
         mdataarr = parser.parse_library(self.filepath)
-
         loader.load_library(
             mdataarr=mdataarr,
             group_by_model=self.group_by_model,
@@ -144,7 +143,9 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
             use_lods=[AssetImportProps.lod_options[i] for i, e in enumerate(self.use_lods) if e],
             use_maps=[AssetImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
             include_assets=[self.include_assets_options[i] for i, e in enumerate(self.include_assets) if e],
-            include_surfaces=[self.include_surfaces_options[i] for i, e in enumerate(self.include_surfaces) if e]
+            include_surfaces=[self.include_surfaces_options[i] for i, e in enumerate(self.include_surfaces) if e],
+            use_tags=self.use_tags,
+            semantic_tags_categories=[self.additional_tags_options[i] for i, e in enumerate(self.additional_tags) if e]
         )
 
         return {'FINISHED'}
