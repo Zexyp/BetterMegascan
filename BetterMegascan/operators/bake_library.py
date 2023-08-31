@@ -9,7 +9,6 @@ from . import log
 from .. import parser
 from .. import loader
 from .. import ui
-from . import base_importer
 from .base_importer import AssetImportProps
 
 
@@ -142,8 +141,8 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
             use_collections=self.use_collections,
             generate_previews=self.generate_previews,
             apply_transform=self.apply_transform,
-            use_lods=[base_importer.lod_options[i] for i, e in enumerate(self.use_lods) if e],
-            use_maps=[base_importer.map_options[i] for i, e in enumerate(self.use_maps) if e],
+            use_lods=[AssetImportProps.lod_options[i] for i, e in enumerate(self.use_lods) if e],
+            use_maps=[AssetImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
             include_assets=[self.include_assets_options[i] for i, e in enumerate(self.include_assets) if e],
             include_surfaces=[self.include_surfaces_options[i] for i, e in enumerate(self.include_surfaces) if e]
         )

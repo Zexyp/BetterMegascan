@@ -1,12 +1,6 @@
-import bpy
-from bpy.props import StringProperty, EnumProperty, BoolProperty, BoolVectorProperty
-
 import os
-import traceback
 
-from . import base_importer
 from .base_importer import BaseImporter, AssetImportProps
-from .. import parser
 from .. import loader
 
 from . import log
@@ -58,8 +52,8 @@ class BETTERMS_OT_import_asset(BaseImporter, AssetImportProps):
                                      group_by_lod=self.group_by_lod,
                                      use_filetype_lods=self.use_filetype_lods,
                                      use_filetype_maps=self.use_filetype_maps,
-                                     use_lods=[base_importer.lod_options[i] for i, e in enumerate(self.use_lods) if e],
-                                     use_maps=[base_importer.map_options[i] for i, e in enumerate(self.use_maps) if e],
+                                     use_lods=[AssetImportProps.lod_options[i] for i, e in enumerate(self.use_lods) if e],
+                                     use_maps=[AssetImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
                                      pack_maps=os.path.isfile(self.dir_path),
                                      apply_transform=self.apply_transform)
 

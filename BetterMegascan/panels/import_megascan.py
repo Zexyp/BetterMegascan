@@ -4,7 +4,6 @@ from bpy.types import Panel
 
 from abc import abstractmethod
 
-from ..operators import BETTERMS_OT_import_asset, BETTERMS_OT_import_surface
 from .. import ui
 
 class BaseFilePanel(Panel):

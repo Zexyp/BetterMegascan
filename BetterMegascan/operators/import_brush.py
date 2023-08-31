@@ -1,11 +1,8 @@
-import bpy
-from bpy.props import StringProperty, EnumProperty, BoolProperty, BoolVectorProperty
+from bpy.props import EnumProperty
 
 import os
-import traceback
 
 from .base_importer import BaseImporter
-from .. import parser
 from .. import loader
 
 from . import log
@@ -18,11 +15,11 @@ class BETTERMS_OT_import_brush(BaseImporter):
 
     use_filetype_maps: EnumProperty(
         name="Textures",
-        items=(
+        items=[
             ('PREFER_EXR', "Prefer EXR", "Fallback is JPEG"),
             ('JPEG', "JPEG only", "(.jpeg/.jpg)"),
             ('EXR', "EXR only", "(.exr)")
-        ),
+        ],
         default='PREFER_EXR',
     )
 

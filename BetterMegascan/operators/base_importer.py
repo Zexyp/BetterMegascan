@@ -1,4 +1,3 @@
-import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, EnumProperty, BoolVectorProperty, BoolProperty
@@ -11,39 +10,6 @@ from .. import parser
 
 from . import log
 
-lod_options = [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-]
-
-map_options = [
-    "albedo",
-    "cavity",
-    "curvature",
-    "gloss",
-    "normal",
-    "displacement",
-    "bump",
-    "ao",
-    "metalness",
-    "diffuse",
-    "roughness",
-    "specular",
-    "fuzz",
-    "translucency",
-    "thickness",
-    "opacity",
-    "brush",
-    "mask",
-    "transmission",
-]
 
 class BaseImporter(Operator, ImportHelper):
     filter_glob: StringProperty(
@@ -52,8 +18,8 @@ class BaseImporter(Operator, ImportHelper):
     )
 
     def __init__(self):
-        self.mdata: parser.structures.MegascanData = None
-        self.dir_path: str = None
+        self.mdata: parser.structures.MegascanData | None = None
+        self.dir_path: str | None = None
 
     def draw(self, context):
         pass
@@ -98,13 +64,35 @@ class SurfaceImportProps:
     use_filetype_maps: EnumProperty(
         name="Textures",
         description="Determines which image filetype will be used",
-        items=(
+        items=[
             ('PREFER_EXR', "Prefer EXR", "Fallback is JPEG"),
             ('JPEG', "JPEG only", "(.jpeg/.jpg)"),
             ('EXR', "EXR only", "(.exr)")
-        ),
+        ],
         default='PREFER_EXR',
     )
+
+    map_options = [
+        "albedo",
+        "cavity",
+        "curvature",
+        "gloss",
+        "normal",
+        "displacement",
+        "bump",
+        "ao",
+        "metalness",
+        "diffuse",
+        "roughness",
+        "specular",
+        "fuzz",
+        "translucency",
+        "thickness",
+        "opacity",
+        "brush",
+        "mask",
+        "transmission",
+    ]
 
     use_maps: BoolVectorProperty(
         name="Import Maps",
@@ -138,13 +126,25 @@ class AssetImportProps(SurfaceImportProps):
     use_filetype_lods: EnumProperty(
         name="Models",
         description="Determines which model filetype will be used",
-        items=(
+        items=[
             ('FBX', "FBX", "Filmbox (.fbx)"),
             ('OBJ', "OBJ", "Wavefront (.obj)"),
             ('ABC', "ABC", "Alembic (.abc)")
-        ),
+        ],
         default='FBX',
     )
+
+    lod_options = [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+    ]
 
     use_lods: BoolVectorProperty(
         name="Import LODs",

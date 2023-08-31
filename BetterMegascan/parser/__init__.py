@@ -14,7 +14,7 @@ else:
     from .exceptions import *
     from .structures import *
 
-log: logging.Logger = None
+log: logging.Logger | None = None
 try:
     from .. import spawn_logger
     log = spawn_logger(__name__)
@@ -25,7 +25,7 @@ except ImportError:
     handler.setFormatter(logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", "%H:%M:%S"))
     log.addHandler(handler)
 
-tmp_dir: str = None
+tmp_dir: str | None = None
 
 def _parse_json_models(mdata: MegascanData, jel, dirfiles: list[str]):
     for jmodel in jel:
@@ -250,18 +250,19 @@ def extract_from_zip(source: str, path_in_zip: str, destination: str) -> str:
 def ensure_file(source: str, path: str) -> str:
     if os.path.isfile(source):
         if not tmp_dir:
-            raise Exception
+            assert False
         return extract_from_zip(source, path, tmp_dir)
 
     return os.path.join(source, path)
 
 
+# my lazy-ass testing
 if __name__ == '__main__':
     from pprint import pprint
 
-    mdata = parse(r"E:\Megascans Library\Downloaded\3dplant\plants _3d_sbslY\sbslY.json")
+    mdata = parse(r"F:\Megascans Library\Downloaded\3dplant\plants _3d_sbslY\sbslY.json")
     pprint(mdata)
-    mdataarr = parse_library(r"E:\Megascans Library\Downloaded\assetsData.json")
+    mdataarr = parse_library(r"F:\Megascans Library\Downloaded\assetsData.json")
     pprint(mdataarr)
     mdata = parse_zip(r"test-zip-file-here")
     pprint(mdata)

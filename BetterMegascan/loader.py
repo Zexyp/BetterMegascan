@@ -363,7 +363,7 @@ def load_map(mmap: parser.structures.MegascanMap,
         case 'JPEG':
             varianttype = 'image/jpeg'
         case _:
-            raise Exception
+            assert False
     assert varianttype
 
     if varianttype in mmap.lods[0]:                                                # eyo the pep limit is right here -->                      but mine is here -->
