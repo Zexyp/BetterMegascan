@@ -9,10 +9,10 @@ from . import log
 from .. import parser
 from .. import loader
 from .. import ui
-from .base_importer import AssetImportProps
+from .base_importer import ModelImportProps, AssetImportProps
 
 
-class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
+class BETTERMS_OT_bake_library(Operator, ImportHelper, ModelImportProps, AssetImportProps):
     bl_idname = "betterms.bake_library"
     bl_label = "Bake Megascan Library"
     bl_options = {'PRESET'}
@@ -29,10 +29,6 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
     include_surfaces_options = [
         "surface", "decal", "atlas",
     ]
-
-    #additional_tags_options = [
-    #    "contains", "theme", "descriptive", "collection", "environment", "state", "color", "industry"
-    #]
 
     include_assets: BoolVectorProperty(
         name="Include Assets",
@@ -63,18 +59,6 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         description="Split individual models or variants",
         default=True,
     )
-
-    use_tags: BoolProperty(
-        name="Tags",
-        description="Apply asset tags to asset in library",
-        default=True,
-    )
-
-    #additional_tags: BoolVectorProperty(
-    #    name="Additional Tags",
-    #    size=len(additional_tags_options),
-    #    default=(False,) * len(additional_tags_options)
-    #)
 
     def draw(self, context):
         layout = self.layout
@@ -148,8 +132,8 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
             use_collections=self.use_collections,
             generate_previews=self.generate_previews,
             apply_transform=self.apply_transform,
-            use_lods=[AssetImportProps.lod_options[i] for i, e in enumerate(self.use_lods) if e],
-            use_maps=[AssetImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
+            use_lods=[ModelImportProps.lod_options[i] for i, e in enumerate(self.use_lods) if e],
+            use_maps=[ModelImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
             include_assets=[self.include_assets_options[i] for i, e in enumerate(self.include_assets) if e],
             include_surfaces=[self.include_surfaces_options[i] for i, e in enumerate(self.include_surfaces) if e],
             use_tags=self.use_tags,

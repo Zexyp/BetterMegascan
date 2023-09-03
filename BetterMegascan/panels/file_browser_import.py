@@ -43,7 +43,7 @@ class BETTERMS_PT_import_collections(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_asset.idname()
+            bpy.ops.betterms.import_model.idname()
         ]
 
     def draw_ui(self, layout, operator):
@@ -55,13 +55,13 @@ class BETTERMS_PT_import_filetypes(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_asset.idname(),
+            bpy.ops.betterms.import_model.idname(),
             bpy.ops.betterms.import_surface.idname(),
             bpy.ops.betterms.import_brush.idname()
         ]
 
     def draw_ui(self, layout, operator):
-        if operator.bl_idname == bpy.ops.betterms.import_asset.idname():
+        if operator.bl_idname == bpy.ops.betterms.import_model.idname():
             ui.filetype_lods(layout, operator)
         ui.filetype_maps(layout, operator)
 
@@ -71,7 +71,7 @@ class BETTERMS_PT_import_lods(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_asset.idname()
+            bpy.ops.betterms.import_model.idname()
         ]
 
     def draw_ui(self, layout, operator):
@@ -83,7 +83,7 @@ class BETTERMS_PT_import_textures(BaseFilePanel):
 
     def draw_on() -> list[str]:
         return [
-            bpy.ops.betterms.import_asset.idname(),
+            bpy.ops.betterms.import_model.idname(),
             bpy.ops.betterms.import_surface.idname()
         ]
 

@@ -12,7 +12,28 @@ from . import spawn_logger
 log = spawn_logger(__name__)
 
 
-def load_asset(mdata: parser.structures.MegascanData,
+# utility function
+def add_asset(asset, mdata, generate_previews: bool, use_tags: bool, semantic_tags_categories: list[str] = []):
+    # add
+    asset.asset_mark()
+
+    # path
+    # TODO: catalogs
+
+    # optional
+    if generate_previews:
+        asset.asset_generate_preview()
+    if use_tags:
+        for tag in mdata.tags:
+            asset.asset_data.tags.new(tag, skip_if_exists=True)
+
+        for cat in semantic_tags_categories:
+            if cat in mdata.semanticTags:
+                for tag in mdata.semanticTags[cat]:
+                    asset.asset_data.tags.new(tag, skip_if_exists=True)
+
+
+def load_model(mdata: parser.structures.MegascanData,
                filepath: str,
                group_by_model: bool,
                group_by_lod: bool,
@@ -21,7 +42,9 @@ def load_asset(mdata: parser.structures.MegascanData,
                use_lods: list[int] | tuple[int] | set[int],
                use_maps: list[str] | tuple[str] | set[str],
                pack_maps: bool,
-               apply_transform: bool = False):
+               apply_transform: bool = False,
+               mark_asset: bool = False,
+               use_tags: bool = False):
 
     def add_collection(name):
         collection = bpy.data.collections.new(name)
@@ -129,6 +152,10 @@ def load_asset(mdata: parser.structures.MegascanData,
             bpy.data.materials.remove(o.data.materials.pop())
         o.data.materials.append(mat_ret["material"])
 
+        # mark individualy as asset
+        if mark_asset:
+            add_asset(o, mdata, use_tags=use_tags, generate_previews=True)
+
     ret = {
         "objects": loaded_objects,
         "collection": newcol,
@@ -142,7 +169,9 @@ def load_material(mdata: parser.structures.MegascanData,
                   filepath: str,
                   use_filetype_maps: str,
                   use_maps: list[str] | tuple[str] | set[str],
-                  pack_maps: bool):
+                  pack_maps: bool,
+                  mark_asset: bool = False,
+                  use_tags: bool = False):
 
     loaded_images = {}
 
@@ -317,6 +346,9 @@ def load_material(mdata: parser.structures.MegascanData,
         else:
             create_texture_node("albedo", (-640, 420), "sRGB", parentnode, "Base Color")
 
+    if mark_asset:
+        add_asset(material, mdata, use_tags=use_tags, generate_previews=True)
+
     return {"material": material, "images": loaded_images}
 
 
@@ -344,6 +376,8 @@ def load_brush(mdata: parser.structures.MegascanData,
             texture.image = image
         else:
             log.debug("map for brush was not found")
+
+
 
     return {"texture": texture}
 
@@ -390,26 +424,6 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
                  apply_transform: bool = False,
                  use_tags: bool = False,
                  semantic_tags_categories: list[str] = []):
-    # utility function
-    def add_asset(asset, mdata):
-        # add
-        asset.asset_mark()
-
-        # path
-
-
-        # optional
-        if generate_previews:
-            asset.asset_generate_preview()
-        if use_tags:
-            for tag in mdata.tags:
-                asset.asset_data.tags.new(tag, skip_if_exists=True)
-
-            for cat in semantic_tags_categories:
-                if cat in mdata.semanticTags:
-                    for tag in mdata.semanticTags[cat]:
-                        asset.asset_data.tags.new(tag, skip_if_exists=True)
-
 
     # initialize progress bar
     wm = bpy.context.window_manager
@@ -420,7 +434,7 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
                   d.type in include_assets]:
         dirpath = os.path.dirname(mdata.path)
 
-        ret = load_asset(
+        ret = load_model(
             mdata=mdata,
             filepath=dirpath,
             group_by_model=group_by_model,
@@ -435,14 +449,14 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
         # decide the way to split models
         if split_models:
             if use_collections and ret["model_collections"]:
-                [add_asset(c, mdata) for c in ret["model_collections"]]
+                [add_asset(c, mdata, use_tags=use_tags, generate_previews=generate_previews, semantic_tags_categories=semantic_tags_categories) for c in ret["model_collections"]]
             else:
-                [add_asset(o, mdata) for o in ret["objects"]]
+                [add_asset(o, mdata, use_tags=use_tags, generate_previews=generate_previews, semantic_tags_categories=semantic_tags_categories) for o in ret["objects"]]
         else:
             if use_collections and ret["collection"]:
-                add_asset(ret["collection"], mdata)
+                add_asset(ret["collection"], mdata, use_tags=use_tags, generate_previews=generate_previews, semantic_tags_categories=semantic_tags_categories)
             else:
-                [add_asset(o, mdata) for o in ret["objects"]]
+                [add_asset(o, mdata, use_tags=use_tags, generate_previews=generate_previews, semantic_tags_categories=semantic_tags_categories) for o in ret["objects"]]
 
         # hide
         hidden = False
@@ -473,7 +487,7 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
             use_maps=use_maps,
             pack_maps=False)
 
-        add_asset(ret["material"], mdata)
+        add_asset(ret["material"], mdata, use_tags=use_tags, generate_previews=generate_previews, semantic_tags_categories=semantic_tags_categories)
 
         # update progress
         progress += 1

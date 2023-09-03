@@ -1,12 +1,12 @@
 import os
 
-from .base_importer import BaseImporter, SurfaceImportProps
+from .base_importer import BaseImporter, SurfaceImportProps, AssetImportProps
 from .. import loader
 
 from . import log
 
 
-class BETTERMS_OT_import_surface(BaseImporter, SurfaceImportProps):
+class BETTERMS_OT_import_surface(BaseImporter, SurfaceImportProps, AssetImportProps):
     bl_idname = "betterms.import_surface"
     bl_label = "Surface"
     bl_description = "Load material and its textures"
@@ -14,12 +14,17 @@ class BETTERMS_OT_import_surface(BaseImporter, SurfaceImportProps):
 
     able_to_import = ["surface", "decal", "atlas", "3D plant", "3D asset"]
 
+    def draw(self, context):
+        AssetImportProps.draw(self, context)
+
     def finish_execute(self, context) -> set:
         load_ret = loader.load_material(self.mdata,
                                         self.dir_path,
                                         use_filetype_maps=self.use_filetype_maps,
                                         use_maps=[SurfaceImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
-                                        pack_maps=os.path.isfile(self.dir_path))
+                                        pack_maps=os.path.isfile(self.dir_path),
+                                        mark_asset=self.mark_asset,
+                                        use_tags=self.use_tags)
 
         # info
         self.report({'INFO'}, f"Loaded {len(load_ret['images'])} maps")

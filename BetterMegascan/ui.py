@@ -1,3 +1,8 @@
+import bpy
+
+from . import operators
+from . import icons
+
 lod_options_display_names = [
     '0',
     '1',
@@ -75,3 +80,26 @@ def filetype_lods(layout, operator):
 
 def filetype_maps(layout, operator):
     layout.prop(operator, "use_filetype_maps")
+
+
+def menu_append_topbar_file_import(self, context):
+    layout = self.layout
+    layout.separator()
+    layout.operator(operators.BETTERMS_OT_init_import_menu.bl_idname, icon_value=icons.icons["megascans"].icon_id)
+    layout.operator(operators.BETTERMS_OT_bake_library.bl_idname, icon='ASSET_MANAGER')
+    layout.separator()
+
+
+def menu_append_assetbrowser_editor_menus(self, context):
+    layout = self.layout
+    layout.label(text="Import")
+
+
+def register():
+    bpy.types.TOPBAR_MT_file_import.append(menu_append_topbar_file_import)
+    bpy.types.ASSETBROWSER_MT_editor_menus.append(menu_append_assetbrowser_editor_menus)
+
+
+def unregister():
+    bpy.types.TOPBAR_MT_file_import.remove(menu_append_topbar_file_import)
+    bpy.types.ASSETBROWSER_MT_editor_menus.remove(menu_append_assetbrowser_editor_menus)

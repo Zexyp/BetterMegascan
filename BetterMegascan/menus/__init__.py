@@ -13,9 +13,10 @@ class BETTERMS_MT_import(bpy.types.Menu):
         if preferences.get(context).import_menu_type == 'PIE':
             layout = layout.menu_pie()
 
-        layout.operator(BETTERMS_OT_import_asset.bl_idname, icon='OUTLINER_OB_MESH')
+        layout.operator(BETTERMS_OT_import_model.bl_idname, icon='OUTLINER_OB_MESH')
         layout.operator(BETTERMS_OT_import_surface.bl_idname, icon='MATERIAL')
         layout.operator(BETTERMS_OT_import_brush.bl_idname, icon='BRUSH_DATA')
+
 
 classes = [
     BETTERMS_MT_import,

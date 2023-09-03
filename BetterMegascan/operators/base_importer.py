@@ -11,6 +11,39 @@ from .. import parser
 from . import log
 
 
+class AssetImportProps:
+    # TODO: better integration in the loader - make use of grouping
+
+    mark_asset: BoolProperty(
+        name="Mark Asset",
+        description="Mark this megascan as asset",
+        default=False,
+    )
+
+    use_tags: BoolProperty(
+        name="Tags",
+        description="Apply asset tags to asset in library",
+        default=True,
+    )
+
+    #additional_tag_options = [
+    #    "contains", "theme", "descriptive", "collection", "environment", "state", "color", "industry"
+    #]
+
+    #additional_tags: BoolVectorProperty(
+    #   name="Additional Tags",
+    #   size=len(additional_tag_options),
+    #   default=(False,) * len(additional_tag_options)
+    #)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "mark_asset")
+        col = layout.column()
+        col.enabled = self.mark_asset
+        col.prop(self, "use_tags")
+
+
 class BaseImporter(Operator, ImportHelper):
     filter_glob: StringProperty(
         default="*.zip;*.json",
@@ -124,7 +157,7 @@ class SurfaceImportProps:
     )
 
 
-class AssetImportProps(SurfaceImportProps):
+class ModelImportProps(SurfaceImportProps):
     use_filetype_lods: EnumProperty(
         name="Models",
         description="Determines which model filetype will be used",
