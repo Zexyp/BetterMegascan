@@ -141,14 +141,34 @@ def _parse_json_components(mdata: MegascanData, jel, dirfiles: list[str]):
                         mmap.lods[mmaplod.level][mmaplod.filetype] = mmaplod
 
 
+def _parse_json_metadata(mdata: MegascanData, jroot):
+    mdata.tags = jroot["tags"]
+
+    ## lowering tags included
+    # mdata.semanticTags = {k: [i.lower() for i in jroot["semanticTags"][k]] for k in jroot["semanticTags"] if isinstance(jroot["semanticTags"][k], list)}
+
+    jcategories = jroot["assetCategories"]
+
+    jcurrentNode: dict = jcategories
+    path = ""
+    while len(jcurrentNode):
+        keys = jcurrentNode.keys()
+        assert len(keys) == 1
+        key = list(keys)[0]
+        path = path + '/' + key
+        jcurrentNode = jcurrentNode[key]
+    path = path.lstrip('/')
+
+    mdata.categoryPath = path
+
+
 def _parse_json_megascan(mdata: MegascanData, jroot, dirfiles: list[str]):
     try:
         mdata.type = jroot["semanticTags"]["asset_type"]
         mdata.name = jroot["name"]
         mdata.id = jroot["id"]
-        mdata.tags = jroot["tags"]
-        # ! lazy
-        mdata.semanticTags = jroot["semanticTags"]
+
+        _parse_json_metadata(mdata, jroot)
 
         match mdata.type:
             case "3D asset":

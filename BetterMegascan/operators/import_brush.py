@@ -15,11 +15,11 @@ class BETTERMS_OT_import_brush(BaseImporter):
 
     use_filetype_maps: EnumProperty(
         name="Textures",
-        items=[
+        items=(
             ('PREFER_EXR', "Prefer EXR", "Fallback is JPEG"),
             ('JPEG', "JPEG only", "(.jpeg/.jpg)"),
             ('EXR', "EXR only", "(.exr)")
-        ],
+        ),
         default='PREFER_EXR',
     )
 

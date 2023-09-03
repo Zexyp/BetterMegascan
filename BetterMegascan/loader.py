@@ -395,12 +395,16 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
         # add
         asset.asset_mark()
 
+        # path
+
+
         # optional
         if generate_previews:
             asset.asset_generate_preview()
         if use_tags:
             for tag in mdata.tags:
                 asset.asset_data.tags.new(tag, skip_if_exists=True)
+
             for cat in semantic_tags_categories:
                 if cat in mdata.semanticTags:
                     for tag in mdata.semanticTags[cat]:

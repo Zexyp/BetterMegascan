@@ -30,9 +30,9 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         "surface", "decal", "atlas",
     ]
 
-    additional_tags_options = [
-        "contains", "theme", "descriptive", "collection", "environment", "state", "color", "industry"
-    ]
+    #additional_tags_options = [
+    #    "contains", "theme", "descriptive", "collection", "environment", "state", "color", "industry"
+    #]
 
     include_assets: BoolVectorProperty(
         name="Include Assets",
@@ -70,36 +70,38 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         default=True,
     )
 
-    additional_tags: BoolVectorProperty(
-        name="Additional Tags",
-        size=len(additional_tags_options),
-        default=(False,) * len(additional_tags_options)
-    )
+    #additional_tags: BoolVectorProperty(
+    #    name="Additional Tags",
+    #    size=len(additional_tags_options),
+    #    default=(False,) * len(additional_tags_options)
+    #)
 
     def draw(self, context):
         layout = self.layout
 
         # general
+        layout.label(text="General")
+
         layout.prop(self, "generate_previews")
 
         # tags
         layout.prop(self, "use_tags", expand=True)
-        layout.label(text="Additional Tags")
-        box = layout.box()
-        box.enabled = self.use_tags
-        column = box.column(heading="Semantic")
-        for i, omap in enumerate(ui.additional_tags_options_display_names):
-            column.prop(self, "additional_tags", index=i, text=omap)
+        #layout.label(text="Additional Tags")
+        #box = layout.box()
+        #box.enabled = self.use_tags
+        #column = box.column(heading="Semantic")
+        #for i, name in enumerate(ui.additional_tags_options_display_names):
+        #    column.prop(self, "additional_tags", index=i, text=name)
 
         split = layout.split()
 
         # includes
         column = split.column(heading="Include Assets", align=True)
-        for i, omap in enumerate(ui.include_assets_options_display_names):
-            column.prop(self, "include_assets", index=i, text=omap)
+        for i, name in enumerate(ui.include_assets_options_display_names):
+            column.prop(self, "include_assets", index=i, text=name)
         column = split.column(heading="Include Surfaces", align=True)
-        for i, omap in enumerate(ui.include_surfaces_options_display_names):
-            column.prop(self, "include_surfaces", index=i, text=omap)
+        for i, name in enumerate(ui.include_surfaces_options_display_names):
+            column.prop(self, "include_surfaces", index=i, text=name)
 
         split = layout.split()
 
@@ -120,6 +122,12 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
         box = column.box()
         ui.filetype_maps(box, self)
         ui.maps(box, self)
+
+    def invoke(self, context, event):
+        if not bpy.data.filepath:
+            self.report({'WARNING'}, 'Please save your file first.')
+            return {'CANCELLED'}
+        return ImportHelper.invoke(self, context, event)
 
     def execute(self, context):
         if not (os.path.exists(self.filepath) and os.path.isfile(self.filepath)):
@@ -145,7 +153,7 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, AssetImportProps):
             include_assets=[self.include_assets_options[i] for i, e in enumerate(self.include_assets) if e],
             include_surfaces=[self.include_surfaces_options[i] for i, e in enumerate(self.include_surfaces) if e],
             use_tags=self.use_tags,
-            semantic_tags_categories=[self.additional_tags_options[i] for i, e in enumerate(self.additional_tags) if e]
+            #semantic_tags_categories=[self.additional_tags_options[i] for i, e in enumerate(self.additional_tags) if e]
         )
 
         return {'FINISHED'}

@@ -8,10 +8,10 @@ class BETTERMS_AddonPreferences(AddonPreferences):
 
     import_menu_type: EnumProperty(
         name="Import Menu Type",
-        items=[
+        items=(
             ('NORMAL', "Normal", "Opens as regular menu"),
             ('PIE', "Pie", "Opens as pie menu"),
-        ],
+        ),
         default='PIE',
     )
 
