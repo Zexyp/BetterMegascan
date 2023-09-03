@@ -151,10 +151,8 @@ def _parse_json_metadata(mdata: MegascanData, jroot):
 
     jcurrentNode: dict = jcategories
     path = ""
-    while len(jcurrentNode):
-        keys = jcurrentNode.keys()
-        assert len(keys) == 1
-        key = list(keys)[0]
+    while len(jcurrentNode) == 1:
+        key = list(jcurrentNode.keys())[0]
         path = path + '/' + key
         jcurrentNode = jcurrentNode[key]
     path = path.lstrip('/')
