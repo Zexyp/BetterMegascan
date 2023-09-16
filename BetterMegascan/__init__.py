@@ -3,7 +3,7 @@ bl_info = {
     "author": "Zexyp",
     "description": "Better import of Megascans",
     "blender": (2, 80, 0),
-    "version": (0, 2, 0),
+    "version": (0, 2, 2),
     "location": "File > Import",
     "warning": "",
     "category": "Import-Export",
