@@ -148,6 +148,8 @@ def load_model(mdata: parser.structures.MegascanData,
                              pack_maps=pack_maps)
 
     for o in loaded_objects:
+        if not o.data:
+            continue
         while len(o.data.materials):
             bpy.data.materials.remove(o.data.materials.pop())
         o.data.materials.append(mat_ret["material"])

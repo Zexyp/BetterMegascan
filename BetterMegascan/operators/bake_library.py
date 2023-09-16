@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
-from bpy.props import StringProperty, BoolProperty, BoolVectorProperty
+from bpy.props import StringProperty, BoolProperty, BoolVectorProperty, EnumProperty
 
 import os
 
@@ -12,13 +12,12 @@ from .. import ui
 from .base_importer import ModelImportProps, AssetImportProps
 
 
-class BETTERMS_OT_bake_library(Operator, ImportHelper, ModelImportProps, AssetImportProps):
+class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
     bl_idname = "betterms.bake_library"
     bl_label = "Bake Megascan Library"
     bl_options = {'PRESET'}
 
-    filter_glob: StringProperty(
-        default="*.json",
+    filepath: StringProperty(
         options={'HIDDEN'}
     )
 
@@ -63,60 +62,12 @@ class BETTERMS_OT_bake_library(Operator, ImportHelper, ModelImportProps, AssetIm
     def draw(self, context):
         layout = self.layout
 
-        # general
-        layout.label(text="General")
-
-        layout.prop(self, "generate_previews")
-
-        # tags
-        layout.prop(self, "use_tags", expand=True)
-        #layout.label(text="Additional Tags")
-        #box = layout.box()
-        #box.enabled = self.use_tags
-        #column = box.column(heading="Semantic")
-        #for i, name in enumerate(ui.additional_tags_options_display_names):
-        #    column.prop(self, "additional_tags", index=i, text=name)
-
-        split = layout.split()
-
-        # includes
-        column = split.column(heading="Include Assets", align=True)
-        for i, name in enumerate(ui.include_assets_options_display_names):
-            column.prop(self, "include_assets", index=i, text=name)
-        column = split.column(heading="Include Surfaces", align=True)
-        for i, name in enumerate(ui.include_surfaces_options_display_names):
-            column.prop(self, "include_surfaces", index=i, text=name)
-
-        split = layout.split()
-
-        # asset
-        column = split.column()
-        column.label(text="Asset")
-        column.prop(self, "use_collections")
-        column.prop(self, "split_models")
-        box = column.box()
-        column.enabled = any(self.include_assets)
-        ui.filetype_lods(box, self)
-        ui.group(box, self)
-        ui.lods(box, self)
-
-        # surface
-        column = split.column()
-        column.label(text="Surface")
-        box = column.box()
-        ui.filetype_maps(box, self)
-        ui.maps(box, self)
+        ui.library(layout, self)
 
     def invoke(self, context, event):
-        if not bpy.data.filepath:
-            self.report({'WARNING'}, 'Please save your file first.')
-            return {'CANCELLED'}
-        return ImportHelper.invoke(self, context, event)
+        return context.window_manager.invoke_props_dialog(self, width=400)
 
     def execute(self, context):
-        if not (os.path.exists(self.filepath) and os.path.isfile(self.filepath)):
-            self.report({'WARNING'}, "File does not exist.")
-            return {'CANCELLED'}
         if not (any(self.include_assets) or any(self.include_surfaces)):
             self.report({'WARNING'}, "Nothing to bake.")
             return {'CANCELLED'}
