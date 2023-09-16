@@ -94,7 +94,11 @@ class BaseImporter(Operator, ImportHelper):
 
 
 class SurfaceImportProps:
-    # TODO: force packing
+    force_pack_maps: BoolProperty(
+        name="Force Pack Maps",
+        description="Force packing of maps into blend file (idc if you drive explodes)",
+        default=False
+    )
 
     use_filetype_maps: EnumProperty(
         name="Textures",

@@ -1,4 +1,4 @@
-from bpy.props import EnumProperty
+from bpy.props import EnumProperty, BoolProperty
 
 import os
 
@@ -23,13 +23,22 @@ class BETTERMS_OT_import_brush(BaseImporter):
         default='PREFER_EXR',
     )
 
+    force_pack_maps: BoolProperty(
+        name="Force Pack Maps",
+        description="Force packing of maps into blend file (idc if you drive explodes)",
+        default=False
+    )
+
     able_to_import = ["brush", "surface", "decal", "atlas", "3D plant", "3D asset"]
+
+    def draw(self, context):
+        self.layout.prop(self, "force_pack_maps")
 
     def finish_execute(self, context) -> set:
         load_ret = loader.load_brush(self.mdata,
                                      self.dir_path,
                                      use_filetype_maps=self.use_filetype_maps,
-                                     pack_maps=os.path.isfile(self.dir_path))
+                                     pack_maps=os.path.isfile(self.dir_path) if not self.force_pack_maps else True)
 
         if load_ret["texture"] is None:
             self.report({'WARNING'}, f"No desired map found.")

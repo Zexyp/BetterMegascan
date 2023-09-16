@@ -57,7 +57,7 @@ class BETTERMS_OT_import_model(BaseImporter, ModelImportProps, AssetImportProps)
                                      use_filetype_maps=self.use_filetype_maps,
                                      use_lods=[ModelImportProps.lod_options[i] for i, e in enumerate(self.use_lods) if e],
                                      use_maps=[ModelImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
-                                     pack_maps=os.path.isfile(self.dir_path),
+                                     pack_maps=os.path.isfile(self.dir_path) if not self.force_pack_maps else True,
                                      apply_transform=self.apply_transform,
                                      mark_asset=self.mark_asset,
                                      use_tags=self.use_tags)

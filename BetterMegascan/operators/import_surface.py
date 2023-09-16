@@ -22,7 +22,7 @@ class BETTERMS_OT_import_surface(BaseImporter, SurfaceImportProps, AssetImportPr
                                         self.dir_path,
                                         use_filetype_maps=self.use_filetype_maps,
                                         use_maps=[SurfaceImportProps.map_options[i] for i, e in enumerate(self.use_maps) if e],
-                                        pack_maps=os.path.isfile(self.dir_path),
+                                        pack_maps=os.path.isfile(self.dir_path) if not self.force_pack_maps else True,
                                         mark_asset=self.mark_asset,
                                         use_tags=self.use_tags)
 
