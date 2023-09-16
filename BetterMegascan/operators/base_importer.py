@@ -95,7 +95,7 @@ class BaseImporter(Operator, ImportHelper):
 
 class SurfaceImportProps:
     force_pack_maps: BoolProperty(
-        name="Force Pack Maps",
+        name="Force Map Packing",
         description="Force packing of maps into blend file (idc if your drive explodes)",
         default=False
     )
@@ -112,52 +112,32 @@ class SurfaceImportProps:
     )
 
     map_options = [
-        "albedo",
-        "cavity",
-        "curvature",
-        "gloss",
-        "normal",
-        "displacement",
-        "bump",
-        "ao",
-        "metalness",
-        "diffuse",
-        "roughness",
-        "specular",
-        "fuzz",
-        "translucency",
-        "thickness",
-        "opacity",
-        "brush",
-        "mask",
-        "transmission",
+        ("albedo",       "Albedo",       True),
+        ("cavity",       "Cavity",       False),
+        ("curvature",    "Curvature",    False),
+        ("gloss",        "Gloss",        False),
+        ("normal",       "Normal",       True),
+        ("displacement", "Displacement", False),
+        ("bump",         "Bump",         False),
+        ("ao",           "AO",           False),
+        ("metalness",    "Metalness",    True),
+        ("diffuse",      "Diffuse",      False),
+        ("roughness",    "Roughness",    True),
+        ("specular",     "Specular",     False),
+        ("fuzz",         "Fuzz",         False),
+        ("translucency", "Translucency", False),
+        ("thickness",    "Thickness",    False),
+        ("opacity",      "Opacity",      True),
+        ("brush",        "Brush",        False),
+        ("mask",         "Mask",         False),
+        ("transmission", "Transmission", False),
     ]
 
     use_maps: BoolVectorProperty(
         name="Import Maps",
         description="Select all PBR maps to look for",
         size=len(map_options),
-        default=(
-            True,   # albedo
-            False,  # cavity
-            False,  # curvature
-            False,  # gloss
-            True,   # normal
-            False,  # displacement
-            False,  # bump
-            False,  # ao
-            True,   # metalness
-            False,  # diffuse
-            True,   # roughness
-            False,  # specular
-            False,  # fuzz
-            False,  # translucency
-            False,  # thickness
-            True,   # opacity
-            False,  # brush
-            False,  # mask
-            False,  # transmission
-        )
+        default=[e[2] for e in map_options]
     )
 
 
@@ -174,32 +154,22 @@ class ModelImportProps(SurfaceImportProps):
     )
 
     lod_options = [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
+        (0, '0', True),
+        (1, '1', False),
+        (2, '2', False),
+        (3, '3', False),
+        (4, '4', False),
+        (5, '5', False),
+        (6, '6', False),
+        (7, '7', False),
+        (8, '8', False),
     ]
 
     use_lods: BoolVectorProperty(
         name="Import LODs",
         description="Select all LODs to look for",
         size=len(lod_options),
-        default=(
-            True,  # 0
-            False,  # 1
-            False,  # 2
-            False,  # 3
-            False,  # 4
-            False,  # 5
-            False,  # 6
-            False,  # 7
-            False,  # 8
-        )
+        default=[e[2] for e in lod_options]
     )
 
     group_by_model: BoolProperty(

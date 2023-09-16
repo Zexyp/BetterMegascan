@@ -1,41 +1,8 @@
 import bpy
 
 from . import operators
+from .operators.base_importer import ModelImportProps, SurfaceImportProps
 from . import icons
-
-lod_options_display_names = [
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-]
-
-map_options_display_names = [
-    "Albedo",
-    "Cavity",
-    "Curvature",
-    "Gloss",
-    "Normal",
-    "Displacement",
-    "Bump",
-    "AO",
-    "Metalness",
-    "Diffuse",
-    "Roughness",
-    "Specular",
-    "Fuzz",
-    "Translucency",
-    "Thickness",
-    "Opacity",
-    "Brush",
-    "Mask",
-    "Transmission",
-]
 
 include_assets_options_display_names = [
     "3D Asset", "3D Plant",
@@ -61,13 +28,13 @@ def lods(layout, operator):
     layout.separator()
 
     col = layout.column(heading="LODs", align=True)
-    col.prop(operator, "use_lods", index=0, text=str(lod_options_display_names[0]))
+    col.prop(operator, "use_lods", index=0, text=str(ModelImportProps.lod_options[0][1]))
     row = layout.row()
     for i in range(1, 5):
-        row.prop(operator, "use_lods", index=i, text=str(lod_options_display_names[i]))
+        row.prop(operator, "use_lods", index=i, text=str(ModelImportProps.lod_options[i][1]))
     row = layout.row()
     for i in range(5, 9):
-        row.prop(operator, "use_lods", index=i, text=str(lod_options_display_names[i]))
+        row.prop(operator, "use_lods", index=i, text=str(ModelImportProps.lod_options[i][1]))
 
 
 def maps(layout, operator):
@@ -76,8 +43,8 @@ def maps(layout, operator):
     layout.separator()
 
     col = layout.column(heading="Maps", align=True)
-    for i, omap in enumerate(map_options_display_names):
-        col.prop(operator, "use_maps", index=i, text=omap)
+    for i in range(len(SurfaceImportProps.map_options)):
+        col.prop(operator, "use_maps", index=i, text=SurfaceImportProps.map_options[i][1])
 
 
 def filetype_lods(layout, operator):

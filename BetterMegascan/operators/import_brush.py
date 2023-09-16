@@ -24,7 +24,7 @@ class BETTERMS_OT_import_brush(BaseImporter):
     )
 
     force_pack_maps: BoolProperty(
-        name="Force Pack Maps",
+        name="Force Map Packing",
         description="Force packing of maps into blend file (idc if your drive explodes)",
         default=False
     )
