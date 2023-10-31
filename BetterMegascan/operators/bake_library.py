@@ -59,12 +59,27 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
         default=True,
     )
 
+    options_tab: EnumProperty(
+        name='Tab',
+        items=[
+            ("SETTINGS", "Settings", ""),
+            ("LIST", "List", ""),
+        ]
+    )
+
+    # TODO: add presets for settings sections
+
+    def __init__(self):
+        self.mdataarr: list = []
+
     def draw(self, context):
         layout = self.layout
 
-        ui.library(layout, self)
+        ui.library(layout, self, mdataarr=self.mdataarr)
 
     def invoke(self, context, event):
+        self.mdataarr = parser.parse_library(self.filepath)
+        self.options_tab = 'SETTINGS'
         return context.window_manager.invoke_props_dialog(self, width=400)
 
     def execute(self, context):
@@ -72,9 +87,8 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
             self.report({'WARNING'}, "Nothing to bake.")
             return {'CANCELLED'}
 
-        mdataarr = parser.parse_library(self.filepath)
         loader.load_library(
-            mdataarr=mdataarr,
+            mdataarr=self.mdataarr,
             group_by_model=self.group_by_model,
             group_by_lod=self.group_by_lod,
             use_filetype_lods=self.use_filetype_lods,
@@ -88,7 +102,7 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
             include_assets=[self.include_assets_options[i][0] for i, e in enumerate(self.include_assets) if e],
             include_surfaces=[self.include_surfaces_options[i][0] for i, e in enumerate(self.include_surfaces) if e],
             use_tags=self.use_tags,
-            #semantic_tags_categories=[self.additional_tags_options[i] for i, e in enumerate(self.additional_tags) if e]
+            # semantic_tags_categories=[self.additional_tags_options[i] for i, e in enumerate(self.additional_tags) if e]
         )
 
         return {'FINISHED'}

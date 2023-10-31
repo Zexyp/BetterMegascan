@@ -103,11 +103,11 @@ class SurfaceImportProps:
     use_filetype_maps: EnumProperty(
         name="Textures",
         description="Determines which image filetype will be used",
-        items=(
+        items=[
             ('PREFER_EXR', "Prefer EXR", "Fallback is JPEG"),
             ('JPEG', "JPEG only", "(.jpeg/.jpg)"),
             ('EXR', "EXR only", "(.exr)")
-        ),
+        ],
         default='PREFER_EXR',
     )
 
@@ -145,11 +145,11 @@ class ModelImportProps(SurfaceImportProps):
     use_filetype_lods: EnumProperty(
         name="Models",
         description="Determines which model filetype will be used",
-        items=(
+        items=[
             ('FBX', "FBX", "Filmbox (.fbx)"),
             ('OBJ', "OBJ", "Wavefront (.obj)"),
             ('ABC', "ABC", "Alembic (.abc)")
-        ),
+        ],
         default='FBX',
     )
 

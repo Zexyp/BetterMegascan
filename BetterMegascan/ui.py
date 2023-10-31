@@ -55,50 +55,56 @@ def filetype_maps(layout, operator):
     layout.prop(operator, "use_filetype_maps")
 
 
-def library(layout, operator):
-    # general
-    layout.label(text="General")
+def library(layout, operator, mdataarr: list = []):
+    layout.prop(operator, "options_tab", text="")
 
-    layout.prop(operator, "generate_previews")
+    if operator.options_tab == 'SETTINGS':
+        # general
+        layout.label(text="General")
 
-    # tags
-    layout.prop(operator, "use_tags", expand=True)
-    # layout.label(text="Additional Tags")
-    # box = layout.box()
-    # box.enabled = self.use_tags
-    # column = box.column(heading="Semantic")
-    # for i, name in enumerate(ui.additional_tags_options_display_names):
-    #    column.prop(self, "additional_tags", index=i, text=name)
+        layout.prop(operator, "generate_previews")
 
-    split = layout.split()
+        # tags
+        layout.prop(operator, "use_tags", expand=True)
+        # layout.label(text="Additional Tags")
+        # box = layout.box()
+        # box.enabled = self.use_tags
+        # column = box.column(heading="Semantic")
+        # for i, name in enumerate(ui.additional_tags_options_display_names):
+        #    column.prop(self, "additional_tags", index=i, text=name)
 
-    # includes
-    column = split.column(heading="Include Assets", align=True)
-    for i, name in enumerate(include_assets_options_display_names):
-        column.prop(operator, "include_assets", index=i, text=name)
-    column = split.column(heading="Include Surfaces", align=True)
-    for i, name in enumerate(include_surfaces_options_display_names):
-        column.prop(operator, "include_surfaces", index=i, text=name)
+        split = layout.split()
 
-    split = layout.split()
+        # includes
+        column = split.column(heading="Include Assets", align=True)
+        for i, name in enumerate(include_assets_options_display_names):
+            column.prop(operator, "include_assets", index=i, text=name)
+        column = split.column(heading="Include Surfaces", align=True)
+        for i, name in enumerate(include_surfaces_options_display_names):
+            column.prop(operator, "include_surfaces", index=i, text=name)
 
-    # asset
-    column = split.column()
-    column.label(text="Asset")
-    column.prop(operator, "use_collections")
-    column.prop(operator, "split_models")
-    box = column.box()
-    column.enabled = any(operator.include_assets)
-    filetype_lods(box, operator)
-    group(box, operator)
-    lods(box, operator)
+        split = layout.split()
 
-    # surface
-    column = split.column()
-    column.label(text="Surface")
-    box = column.box()
-    filetype_maps(box, operator)
-    maps(box, operator)
+        # asset
+        column = split.column()
+        column.label(text="Asset")
+        column.prop(operator, "use_collections")
+        column.prop(operator, "split_models")
+        box = column.box()
+        column.enabled = any(operator.include_assets)
+        filetype_lods(box, operator)
+        group(box, operator)
+        lods(box, operator)
+
+        # surface
+        column = split.column()
+        column.label(text="Surface")
+        box = column.box()
+        filetype_maps(box, operator)
+        maps(box, operator)
+    elif operator.options_tab == 'LIST':
+        for mdata in mdataarr:
+            layout.label(text=mdata.name)
 
 
 def menu_append_topbar_file_import(self, context):

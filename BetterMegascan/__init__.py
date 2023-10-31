@@ -11,8 +11,9 @@ bl_info = {
 }
 
 """
-Megascan? more like Mega Scan because it's such a pain to work with
+Megascan? more like Mega Scam because it's such a pain to work with
 """
+# TODO: geometry nodes lod setup + proxy thingy
 
 import bpy
 
