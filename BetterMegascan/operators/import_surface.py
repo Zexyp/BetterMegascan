@@ -2,6 +2,7 @@ import os
 
 from .base_importer import BaseImporter, SurfaceImportProps, AssetImportProps
 from .. import loader
+from .. import preferences
 
 from . import log
 
@@ -18,6 +19,9 @@ class BETTERMS_OT_import_surface(BaseImporter, SurfaceImportProps, AssetImportPr
         AssetImportProps.draw(self, context)
 
     def finish_execute(self, context) -> set:
+
+        prefs = preferences.get(context)
+
         load_ret = loader.load_material(self.mdata,
                                         self.dir_path,
                                         use_filetype_maps=self.use_filetype_maps,
@@ -25,8 +29,8 @@ class BETTERMS_OT_import_surface(BaseImporter, SurfaceImportProps, AssetImportPr
                                         pack_maps=os.path.isfile(self.dir_path) if not self.force_pack_maps else True,
                                         mark_asset=self.mark_asset,
                                         use_tags=self.use_tags,
-                                        name_template_material=self.name_template_material,
-                                        name_template_map=self.name_template_map)
+                                        name_template_material=prefs.name_template_material,
+                                        name_template_map=prefs.name_template_map)
 
         # info
         self.report({'INFO'}, f"Loaded {len(load_ret['images'])} maps")

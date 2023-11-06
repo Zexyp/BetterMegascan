@@ -16,11 +16,22 @@ additional_tags_options_display_names = [
     "Contains", "Theme", "Descriptive", "Collection", "Environment", "State", "Color", "Industry"
 ]
 
+def popup_message(message="", title="Message", icon='INFO'):
+    def draw(self, context):
+        self.layout.label(text=message)
+
+    bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
+
+def popup_message_info(message):
+    popup_message(message, "Info", 'INFO')
+
+def popup_message_warn(message):
+    popup_message(message, "Warning", 'ERROR')
+
 def group(layout, operator):
     col = layout.column(heading="Group", align=True)
     col.prop(operator, "group_by_model", text="Asset")
     col.prop(operator, "group_by_lod", text="LODs")
-
 
 def lods(layout, operator):
     layout.prop(operator, "apply_transform")
@@ -37,7 +48,6 @@ def lods(layout, operator):
         row.prop(operator, "use_lods", index=i, text=str(ModelImportProps.lod_options[i][1]))
 
     layout.prop(operator, "name_template_model")
-
 
 def maps(layout, operator):
     layout.prop(operator, "force_pack_maps")
@@ -57,10 +67,8 @@ def maps(layout, operator):
 def filetype_lods(layout, operator):
     layout.prop(operator, "use_filetype_lods")
 
-
 def filetype_maps(layout, operator):
     layout.prop(operator, "use_filetype_maps")
-
 
 def library(layout, operator, mdataarr: list = []):
     layout.prop(operator, "options_tab", text="")
@@ -113,29 +121,15 @@ def library(layout, operator, mdataarr: list = []):
         for mdata in mdataarr:
             layout.label(text=mdata.name)
 
-
 def menu_append_topbar_file_import(self, context):
     layout = self.layout
     layout.separator()
     layout.operator(operators.BETTERMS_OT_init_import_menu.bl_idname, icon_value=icons.icons["megascans"].icon_id)
     layout.operator(operators.BETTERMS_OT_import_library.bl_idname, icon='ASSET_MANAGER')
 
-
 def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_append_topbar_file_import)
-
 
 def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_append_topbar_file_import)
 
-def popup_message(message="", title="Message", icon='INFO'):
-    def draw(self, context):
-        self.layout.label(text=message)
-
-    bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
-
-def popup_message_info(message):
-    popup_message(message, "Info", 'INFO')
-
-def popup_message_warn(message):
-    popup_message(message, "Warning", 'ERROR')

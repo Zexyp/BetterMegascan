@@ -46,7 +46,11 @@ def load_model(mdata: parser.structures.MegascanData,
                apply_transform: bool = False,
                mark_asset: bool = False,
                use_tags: bool = False,
-               name_template_model: str = None):
+               name_template_model: str = None,
+               name_template_material: str = None,
+               name_template_map: str = None,
+               name_template_group_asset: str = None,
+               name_template_group_model: str = None):
 
     def add_collection(name):
         collection = bpy.data.collections.new(name)
@@ -119,12 +123,16 @@ def load_model(mdata: parser.structures.MegascanData,
         for keymodel in mdata.models:
             # create new collection for model and change collection context
             prevmodelcol = None
+
+            mmodel = mdata.models[keymodel]
             if group_by_lod:
                 col = add_collection(keymodel)
+                if name_template_group_model:
+                    col.name = string.Template(name_template_group_model).safe_substitute(name=mdata.name, id=mdata.id, model=mmodel.name)
                 prevmodelcol = activate_collection(col)
                 cols.append(col)
 
-            load_model(mdata.models[keymodel])
+            load_model(mmodel)
 
             # change back collection context
             if group_by_lod:
@@ -139,6 +147,8 @@ def load_model(mdata: parser.structures.MegascanData,
     newcol = None
     if group_by_model:
         newcol = add_collection(mdata.name)
+        if name_template_group_asset:
+            newcol.name = string.Template(name_template_group_asset).safe_substitute(name=mdata.name, id=mdata.id)
         prevcol = activate_collection(newcol)
 
     mod_ret = load_models(mdata)
@@ -148,9 +158,11 @@ def load_model(mdata: parser.structures.MegascanData,
         activate_collection(prevcol)
 
     mat_ret = load_material(mdata, filepath,
-                             use_filetype_maps=use_filetype_maps,
-                             use_maps=use_maps,
-                             pack_maps=pack_maps)
+                            use_filetype_maps=use_filetype_maps,
+                            use_maps=use_maps,
+                            pack_maps=pack_maps,
+                            name_template_material=name_template_material,
+                            name_template_map=name_template_map)
 
     for o in loaded_objects:
         if not o.data:
@@ -437,7 +449,12 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
                  generate_previews: bool,
                  apply_transform: bool = False,
                  use_tags: bool = False,
-                 semantic_tags_categories: list[str] = []):
+                 semantic_tags_categories: list[str] = [],
+                 name_template_material: str = None,
+                 name_template_map: str = None,
+                 name_template_model: str = None,
+                 name_template_group_asset: str = None,
+                 name_template_group_model: str = None):
 
     # initialize progress bar
     wm = bpy.context.window_manager
@@ -458,7 +475,10 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
             use_lods=use_lods,
             use_maps=use_maps,
             pack_maps=False,  # this would let your lovely blender pc explode
-            apply_transform=apply_transform)
+            apply_transform=apply_transform,
+            name_template_model=name_template_model,
+            name_template_group_asset=name_template_group_asset,
+            name_template_group_model=name_template_group_model)
 
         # decide the way to split models
         if split_models:
@@ -499,7 +519,9 @@ def load_library(mdataarr: list[parser.structures.MegascanData],
             filepath=dirpath,
             use_filetype_maps=use_filetype_maps,
             use_maps=use_maps,
-            pack_maps=False)
+            pack_maps=False,
+            name_template_material=name_template_material,
+            name_template_map=name_template_map)
 
         add_asset(ret["material"], mdata, use_tags=use_tags, generate_previews=generate_previews, semantic_tags_categories=semantic_tags_categories)
 
