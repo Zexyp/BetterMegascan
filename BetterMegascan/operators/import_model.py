@@ -2,6 +2,7 @@ import os
 
 from .base_importer import BaseImporter, ModelImportProps, AssetImportProps
 from .. import loader
+from .. import preferences
 
 from . import log
 
@@ -49,6 +50,8 @@ class BETTERMS_OT_import_model(BaseImporter, ModelImportProps, AssetImportProps)
             # raise NotImplemented
             return {'CANCELLED'}
 
+        prefs = preferences.get(context)
+
         load_ret = loader.load_model(self.mdata,
                                      self.dir_path,
                                      group_by_model=self.group_by_model,
@@ -61,7 +64,11 @@ class BETTERMS_OT_import_model(BaseImporter, ModelImportProps, AssetImportProps)
                                      apply_transform=self.apply_transform,
                                      mark_asset=self.mark_asset,
                                      use_tags=self.use_tags,
-                                     name_template_model=self.name_template_model)
+                                     name_template_model=prefs.name_template_model,
+                                     name_template_material=prefs.name_template_material,
+                                     name_template_map=prefs.name_template_map,
+                                     name_template_group_asset=prefs.name_template_group_asset,
+                                     name_template_group_model=prefs.name_template_group_model)
 
         for o in load_ret["objects"]:
             o.select_set(True)

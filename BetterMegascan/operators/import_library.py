@@ -23,7 +23,7 @@ class BETTERMS_OT_import_library(Operator, ImportHelper):
 
     def invoke(self, context, event):
         if not bpy.data.filepath:
-            self.report({'WARNING'}, 'Please save your file first.')
+            self.report({'WARNING'}, 'File not saved.')
             ui.popup_message_info('Please save your file first.')
             return {'CANCELLED'}
         return ImportHelper.invoke(self, context, event)

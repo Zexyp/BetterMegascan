@@ -140,18 +140,6 @@ class SurfaceImportProps:
         default=[e[2] for e in map_options]
     )
 
-    name_template_material: StringProperty(
-        name="Name Template",
-        description="Specifies template for material name.\n(name, id)",
-        default="${name}_${id}"
-    )
-
-    name_template_map: StringProperty(
-        name="Map Name Template",
-        description="Specifies template for map name.\n(name, id, type)",
-        default="${name}_${id}_${type}"
-    )
-
 
 class ModelImportProps(SurfaceImportProps):
     use_filetype_lods: EnumProperty(
@@ -200,10 +188,4 @@ class ModelImportProps(SurfaceImportProps):
         name="Apply Transform",
         description="Models might get rotated to meet the desired orientation. This option will afterwards apply the transformation",
         default=False,
-    )
-
-    name_template_model: StringProperty(
-        name="Name Template",
-        description="Specifies template for model name.\n(name, id, model, lod)",
-        default="${name}_${id}_${model}_LOD${lod}"
     )
