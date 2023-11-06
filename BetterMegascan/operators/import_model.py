@@ -60,7 +60,8 @@ class BETTERMS_OT_import_model(BaseImporter, ModelImportProps, AssetImportProps)
                                      pack_maps=os.path.isfile(self.dir_path) if not self.force_pack_maps else True,
                                      apply_transform=self.apply_transform,
                                      mark_asset=self.mark_asset,
-                                     use_tags=self.use_tags)
+                                     use_tags=self.use_tags,
+                                     name_template_model=self.name_template_model)
 
         for o in load_ret["objects"]:
             o.select_set(True)
