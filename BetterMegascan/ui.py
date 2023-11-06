@@ -36,6 +36,8 @@ def lods(layout, operator):
     for i in range(5, 9):
         row.prop(operator, "use_lods", index=i, text=str(ModelImportProps.lod_options[i][1]))
 
+    layout.prop(operator, "name_template_model")
+
 
 def maps(layout, operator):
     layout.prop(operator, "force_pack_maps")
@@ -45,6 +47,11 @@ def maps(layout, operator):
     col = layout.column(heading="Maps", align=True)
     for i in range(len(SurfaceImportProps.map_options)):
         col.prop(operator, "use_maps", index=i, text=SurfaceImportProps.map_options[i][1])
+
+    layout.separator()
+
+    layout.prop(operator, "name_template_material")
+    layout.prop(operator, "name_template_map")
 
 
 def filetype_lods(layout, operator):
@@ -120,3 +127,15 @@ def register():
 
 def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_append_topbar_file_import)
+
+def popup_message(message="", title="Message", icon='INFO'):
+    def draw(self, context):
+        self.layout.label(text=message)
+
+    bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
+
+def popup_message_info(message):
+    popup_message(message, "Info", 'INFO')
+
+def popup_message_warn(message):
+    popup_message(message, "Warning", 'ERROR')

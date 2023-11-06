@@ -5,6 +5,7 @@ yes, it is a bit messy
 import bpy
 
 import os
+import string
 
 from . import parser
 from . import spawn_logger
@@ -44,7 +45,8 @@ def load_model(mdata: parser.structures.MegascanData,
                pack_maps: bool,
                apply_transform: bool = False,
                mark_asset: bool = False,
-               use_tags: bool = False):
+               use_tags: bool = False,
+               name_template_model: str = None):
 
     def add_collection(name):
         collection = bpy.data.collections.new(name)
@@ -106,6 +108,9 @@ def load_model(mdata: parser.structures.MegascanData,
                                              global_clamp_size=1.0)
                 case _:
                     assert False
+
+            for o in bpy.context.selected_objects:
+                o.name = string.Template(name_template_model).safe_substitute(name=mdata.name, id=mdata.id, lod=keylod, model=mmodel.name)
 
             loaded_objects.extend(bpy.context.selected_objects)
 
@@ -173,7 +178,9 @@ def load_material(mdata: parser.structures.MegascanData,
                   use_maps: list[str] | tuple[str] | set[str],
                   pack_maps: bool,
                   mark_asset: bool = False,
-                  use_tags: bool = False):
+                  use_tags: bool = False,
+                  name_template_material: str = None,
+                  name_template_map: str = None):
 
     loaded_images = {}
 
@@ -193,6 +200,9 @@ def load_material(mdata: parser.structures.MegascanData,
                              use_filetype_maps=use_filetype_maps,
                              pack_maps=pack_maps)
             if image is not None:
+                if name_template_map:
+                    image.name = string.Template(name_template_map).safe_substitute(name=mdata.name, id=mdata.id, type=mmap.type)
+
                 loaded_images[mmap.type] = image
 
     # prepare maps
@@ -201,6 +211,8 @@ def load_material(mdata: parser.structures.MegascanData,
     # init material
     log.debug("creating material")
     material = bpy.data.materials.new(f"{mdata.name}_{mdata.id}")
+    if name_template_material:
+        material.name = string.Template(name_template_material).safe_substitute(name=mdata.name, id=mdata.id)
     material.use_nodes = True
     nodes = material.node_tree.nodes
 
