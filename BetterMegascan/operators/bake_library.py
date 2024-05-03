@@ -1,12 +1,7 @@
-import bpy
 from bpy.types import Operator
-from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty, BoolVectorProperty, EnumProperty
 
-import os
-
 from .base_importer import ModelImportProps, AssetImportProps
-from . import log
 from .. import parser
 from .. import loader
 from .. import ui
@@ -81,6 +76,7 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
     def invoke(self, context, event):
         self.mdataarr = parser.parse_library(self.filepath)
         self.options_tab = 'SETTINGS'
+
         return context.window_manager.invoke_props_dialog(self, width=400)
 
     def execute(self, context):

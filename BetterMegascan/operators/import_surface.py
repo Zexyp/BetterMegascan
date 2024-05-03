@@ -4,8 +4,6 @@ from .base_importer import BaseImporter, SurfaceImportProps, AssetImportProps
 from .. import loader
 from .. import preferences
 
-from . import log
-
 
 class BETTERMS_OT_import_surface(BaseImporter, SurfaceImportProps, AssetImportProps):
     bl_idname = "betterms.import_surface"

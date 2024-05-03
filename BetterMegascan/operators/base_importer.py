@@ -7,6 +7,7 @@ import traceback
 from abc import abstractmethod
 
 from .. import parser
+from ..parser.structures import MegascanData
 
 from . import log
 
@@ -51,7 +52,7 @@ class BaseImporter(Operator, ImportHelper):
     )
 
     def __init__(self):
-        self.mdata: parser.structures.MegascanData | None = None
+        self.mdata: MegascanData | None = None
         self.dir_path: str | None = None
 
     def draw(self, context):

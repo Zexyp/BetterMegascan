@@ -7,8 +7,11 @@ import bpy
 import os
 import string
 
-from . import parser
-from . import spawn_logger
+from .. import parser
+from .. import spawn_logger
+from ..parser.structures import MegascanData, MegascanMap
+
+from .node_spawner import NodeSpawner
 
 log = spawn_logger(__name__)
 
@@ -34,7 +37,7 @@ def add_asset(asset, mdata, generate_previews: bool, use_tags: bool, semantic_ta
                     asset.asset_data.tags.new(tag, skip_if_exists=True)
 
 
-def load_model(mdata: parser.structures.MegascanData,
+def load_model(mdata: MegascanData,
                filepath: str,
                group_by_model: bool,
                group_by_lod: bool,
@@ -184,7 +187,7 @@ def load_model(mdata: parser.structures.MegascanData,
     return ret
 
 
-def load_material(mdata: parser.structures.MegascanData,
+def load_material(mdata: MegascanData,
                   filepath: str,
                   use_filetype_maps: str,
                   use_maps: list[str] | tuple[str] | set[str],
@@ -228,28 +231,19 @@ def load_material(mdata: parser.structures.MegascanData,
     material.use_nodes = True
     nodes = material.node_tree.nodes
 
-    def create_generic_node(type, pos: tuple = None):
-        node = material.node_tree.nodes.new(type=type)
-        if pos:
-            node.location = pos
-
-        return node
-
-    # order is from node input receiver to input provider node
-    def connect_nodes(node_a, node_b, in_a: int | str = 0, out_b: int | str = 0):
-        material.node_tree.links.new(node_a.inputs[in_a], node_b.outputs[out_b])
+    spawner = NodeSpawner(material.node_tree)
 
     # prepare mapping
     mappingnode = None
     if mdata.type not in ["3d", "3dplant"]:
-        mappingnode = create_generic_node("ShaderNodeMapping", (-1950, 0))
+        mappingnode = spawner.create_generic_node("ShaderNodeMapping", (-1950, 0))
         mappingnode.vector_type = 'TEXTURE'
-        texcoordnode = create_generic_node("ShaderNodeTexCoord", (-2150, -200))
-        connect_nodes(mappingnode, texcoordnode, "Vector", "UV")
+        texcoordnode = spawner.create_generic_node("ShaderNodeTexCoord", (-2150, -200))
+        spawner.connect_nodes(mappingnode, texcoordnode, "Vector", "UV")
 
     def create_texture_node(map_type: str, pos: tuple, colorspace: str = "Non-Color", connect_to=None,
                             connect_at: str = ""):
-        texnode = create_generic_node('ShaderNodeTexImage', pos)
+        texnode = spawner.create_generic_node('ShaderNodeTexImage', pos)
         texnode.image = loaded_images[map_type]
         texnode.show_texture = True
         texnode.image.colorspace_settings.name = colorspace
@@ -258,23 +252,23 @@ def load_material(mdata: parser.structures.MegascanData,
             texnode.image.colorspace_settings.name = "Linear"
 
         if connect_to:
-            connect_nodes(connect_to, texnode, connect_at, 0)
+            spawner.connect_nodes(connect_to, texnode, connect_at, 0)
 
         if mdata.type not in ["3d", "3dplant"]:
-            connect_nodes(texnode, mappingnode, "Vector", "Vector")
+            spawner.connect_nodes(texnode, mappingnode, "Vector", "Vector")
 
         return texnode
 
     def create_texture_multiply_node(a_map_type: str, b_map_type: str, pos: tuple, a_pos: tuple, b_pos: tuple,
                                      a_colorspace: str = "Non-Color", b_colorspace: str = "Non-Color", connect_to=None,
                                      connect_at: str = None):
-        multnode = create_generic_node('ShaderNodeMixRGB', pos)
+        multnode = spawner.create_generic_node('ShaderNodeMixRGB', pos)
         multnode.blend_type = 'MULTIPLY'
         texnodeb = create_texture_node(a_map_type, a_pos, a_colorspace, multnode, "Color1")
         texnodea = create_texture_node(b_map_type, b_pos, b_colorspace, multnode, "Color2")
 
         if connect_to:
-            connect_nodes(connect_to, multnode, connect_at)
+            spawner.connect_nodes(connect_to, multnode, connect_at)
 
         return multnode
 
@@ -300,10 +294,10 @@ def load_material(mdata: parser.structures.MegascanData,
         create_texture_node("roughness", (-1150, -60), "Non-Color", parentnode, "Roughness")
     elif "gloss" in loaded_images:
         glossnode = create_texture_node("gloss", (-1150, -60))
-        invnode = create_generic_node("ShaderNodeInvert", (-250, 60))
+        invnode = spawner.create_generic_node("ShaderNodeInvert", (-250, 60))
 
-        connect_nodes(invnode, glossnode, "Color", "Color")
-        connect_nodes(parentnode, invnode, "Roughness")
+        spawner.connect_nodes(invnode, glossnode, "Color", "Color")
+        spawner.connect_nodes(parentnode, invnode, "Roughness")
 
     if "opacity" in loaded_images:
         create_texture_node("opacity", (-1550, -160), "Non-Color", parentnode, "Alpha")
@@ -316,48 +310,48 @@ def load_material(mdata: parser.structures.MegascanData,
 
     # avoid bump if is high poly - not implemented
     if "normal" in loaded_images and "bump" in loaded_images:
-        bumpnode = create_generic_node("ShaderNodeBump", (-250, -170))
+        bumpnode = spawner.create_generic_node("ShaderNodeBump", (-250, -170))
         bumpnode.inputs["Strength"].default_value = 0.1
 
-        normalnode = create_generic_node("ShaderNodeNormalMap", (-640, -400))
+        normalnode = spawner.create_generic_node("ShaderNodeNormalMap", (-640, -400))
 
         texnormnode = create_texture_node("normal", (-1150, -580), connect_to=normalnode, connect_at="Color")
         texbumpnode = create_texture_node("bump", (-640, -130), connect_to=bumpnode, connect_at="Height")
 
-        connect_nodes(bumpnode, normalnode, "Normal", "Normal")
+        spawner.connect_nodes(bumpnode, normalnode, "Normal", "Normal")
 
-        connect_nodes(parentnode, bumpnode, "Normal")
+        spawner.connect_nodes(parentnode, bumpnode, "Normal")
 
     elif "normal" in loaded_images:
-        normalnode = create_generic_node("ShaderNodeNormalMap", (-250, -170))
+        normalnode = spawner.create_generic_node("ShaderNodeNormalMap", (-250, -170))
 
         texnormnode = create_texture_node("normal", (-640, -207), connect_to=normalnode, connect_at="Color")
 
-        connect_nodes(parentnode, normalnode, "Normal")
+        spawner.connect_nodes(parentnode, normalnode, "Normal")
 
     elif "bump" in loaded_images:
-        bumpnode = create_generic_node("ShaderNodeBump", (-250, -170))
+        bumpnode = spawner.create_generic_node("ShaderNodeBump", (-250, -170))
         bumpnode.inputs["Strength"].default_value = 0.1
 
         texbumbnode = create_texture_node("bump", (-640, -207), connect_to=bumpnode, connect_at="Height")
 
-        connect_nodes(parentnode, bumpnode, "Normal")
+        spawner.connect_nodes(parentnode, bumpnode, "Normal")
 
     # avoid displacement if is high poly - not implemented
     if "displacement" in loaded_images:
         if bpy.context.scene.cycles.feature_set == 'EXPERIMENTAL':
-            dispnode = create_generic_node("ShaderNodeDisplacement", (10, -400))
+            dispnode = spawner.create_generic_node("ShaderNodeDisplacement", (10, -400))
             dispnode.inputs["Scale"].default_value = 0.1
             dispnode.inputs["Midlevel"].default_value = 0
 
-            splitnode = create_generic_node("ShaderNodeSeparateRGB", (-250, -499))
+            splitnode = spawner.create_generic_node("ShaderNodeSeparateRGB", (-250, -499))
             # Import normal map and normal map node setup.
             dispmap = create_texture_node("displacement", (-640, -740))
 
-            connect_nodes(splitnode, dispmap, "Image", "Color")
-            connect_nodes(dispnode, splitnode, "Height", "R")
+            spawner.connect_nodes(splitnode, dispmap, "Image", "Color")
+            spawner.connect_nodes(dispnode, splitnode, "Height", "R")
 
-            connect_nodes(nodes.get(outputnodename), dispnode, "Displacement", "Displacement")
+            spawner.connect_nodes(nodes.get(outputnodename), dispnode, "Displacement", "Displacement")
             material.cycles.displacement_method = 'BOTH'
         else:
             pass
@@ -378,37 +372,68 @@ def load_material(mdata: parser.structures.MegascanData,
     return {"material": material, "images": loaded_images}
 
 
-def load_brush(mdata: parser.structures.MegascanData,
+def load_brush(mdata: MegascanData,
                filepath: str,
                use_filetype_maps: str,
-               pack_maps: bool):
+               pack_maps: bool,
+               name_template_map: str = None,
+               name_template_brush: str = None):
 
     log.debug("loading brush")
 
-    key = None
-    if "brush" in mdata.maps:
-        key = "brush"
-    elif "opacity" in mdata.maps:
-        key = "opacity"
+    def load_if_exists(map_type):
+        if map_type in mdata.maps:
+            mmap = mdata.maps[map_type]
+            image = load_map(mmap,
+                                   filepath,
+                                   use_filetype_maps=use_filetype_maps,
+                                   pack_maps=pack_maps)
+            image.name = string.Template(name_template_map).safe_substitute(name=mdata.name, id=mdata.id, type=mmap.type)
+            return image
+        return None
+
+    texture_name = string.Template(name_template_map).safe_substitute(name=mdata.name, id=mdata.id)
 
     texture = None
-    if key is not None:
-        image = load_map(mdata.maps[key],
-                         filepath,
-                         use_filetype_maps=use_filetype_maps,
-                         pack_maps=pack_maps)
-        if image is not None:
-            texture = bpy.data.textures.new(f"Brush_{mdata.name}_{mdata.id}", type='IMAGE')
-            texture.image = image
-        else:
-            log.debug("map for brush was not found")
+    if brush_image := load_if_exists("brush"):
+        texture = bpy.data.textures.new(texture_name, type='IMAGE')
+        texture.image = brush_image
+    else:
+        albedo_image = load_if_exists("albedo")
+        opacity_image = load_if_exists("opacity")
 
+        assert albedo_image and opacity_image
+
+        texture = bpy.data.textures.new(texture_name, type='NONE')
+        texture.use_nodes = True
+
+        log.debug("quick lazy fix ahead")
+        texture.node_tree.nodes.remove(texture.node_tree.nodes["Checker"])
+
+        spawner = NodeSpawner(texture.node_tree)
+
+        nodecombine = spawner.create_generic_node("TextureNodeCombineColor", (-240, 0))
+        nodeseparate = spawner.create_generic_node("TextureNodeSeparateColor", (-480, 0))
+
+        spawner.connect_nodes(texture.node_tree.nodes["Output"], nodecombine, "Color")
+
+        spawner.connect_nodes(nodecombine, nodeseparate, "Red", "Red")
+        spawner.connect_nodes(nodecombine, nodeseparate, "Green", "Green")
+        spawner.connect_nodes(nodecombine, nodeseparate, "Blue", "Blue")
+
+        nodealbedo = spawner.create_generic_node("TextureNodeImage", (-720, 0))
+        nodealbedo.image = albedo_image
+        nodeopacity = spawner.create_generic_node("TextureNodeImage", (-720, -120))
+        nodeopacity.image = opacity_image
+
+        spawner.connect_nodes(nodeseparate, nodealbedo, "Color", "Image")
+        spawner.connect_nodes(nodecombine, nodeopacity, "Alpha", "Image")
 
 
     return {"texture": texture}
 
 
-def load_map(mmap: parser.structures.MegascanMap,
+def load_map(mmap: MegascanMap,
              filepath: str,
              use_filetype_maps: str,
              pack_maps: bool):
@@ -425,8 +450,8 @@ def load_map(mmap: parser.structures.MegascanMap,
         case _:
             assert False
     assert varianttype
-
-    if varianttype in mmap.lods[0]:                                                # eyo the pep limit is right here -->                      but mine is here -->
+    #                                                                                eyo the pep limit is right here -->                      but mine is here -->
+    if varianttype in mmap.lods[0]:
         image = bpy.data.images.load(
             parser.ensure_file(filepath, mmap.lods[0][varianttype].filepath))
         if pack_maps:
@@ -435,7 +460,7 @@ def load_map(mmap: parser.structures.MegascanMap,
     return None
 
 
-def load_library(mdataarr: list[parser.structures.MegascanData],
+def load_library(mdataarr: list[MegascanData],
                  group_by_model: bool,
                  group_by_lod: bool,
                  use_filetype_lods: str,

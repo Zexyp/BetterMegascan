@@ -40,9 +40,15 @@ class BETTERMS_AddonPreferences(AddonPreferences):
     )
 
     name_template_map: StringProperty(
-        name="Map",
+        name="Map Image",
         description="Specifies template for map name.\n(name, id, type)",
         default="${name}_${id}_${type}"
+    )
+
+    name_template_brush: StringProperty(
+        name="Brush Texture",
+        description="Specifies template for brush texture name.\n(name, id)",
+        default="Brush_${name}_${id}"
     )
 
     def draw(self, context):

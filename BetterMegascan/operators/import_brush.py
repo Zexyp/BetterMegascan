@@ -4,8 +4,8 @@ import os
 
 from .base_importer import BaseImporter
 from .. import loader
+from .. import preferences
 
-from . import log
 
 class BETTERMS_OT_import_brush(BaseImporter):
     bl_idname = "betterms.import_brush"
@@ -35,10 +35,14 @@ class BETTERMS_OT_import_brush(BaseImporter):
         self.layout.prop(self, "force_pack_maps")
 
     def finish_execute(self, context) -> set:
+        prefs = preferences.get(context)
+
         load_ret = loader.load_brush(self.mdata,
                                      self.dir_path,
                                      use_filetype_maps=self.use_filetype_maps,
-                                     pack_maps=os.path.isfile(self.dir_path) if not self.force_pack_maps else True)
+                                     pack_maps=os.path.isfile(self.dir_path) if not self.force_pack_maps else True,
+                                     name_template_map=prefs.name_template_map,
+                                     name_template_brush=prefs.name_template_brush)
 
         if load_ret["texture"] is None:
             self.report({'WARNING'}, f"No desired map found.")
