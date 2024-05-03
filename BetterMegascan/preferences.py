@@ -59,10 +59,11 @@ class BETTERMS_AddonPreferences(AddonPreferences):
 
         col = layout.column(heading="Name Templates")
         col.prop(self, "name_template_model")
-        col.prop(self, "name_template_material")
-        col.prop(self, "name_template_map")
         col.prop(self, "name_template_group_asset")
         col.prop(self, "name_template_group_model")
+        col.prop(self, "name_template_material")
+        col.prop(self, "name_template_map")
+        col.prop(self, "name_template_brush")
 
 
 def get(context) -> BETTERMS_AddonPreferences:

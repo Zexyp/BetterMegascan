@@ -392,7 +392,7 @@ def load_brush(mdata: MegascanData,
             return image
         return None
 
-    texture_name = string.Template(name_template_map).safe_substitute(name=mdata.name, id=mdata.id)
+    texture_name = string.Template(name_template_brush).safe_substitute(name=mdata.name, id=mdata.id)
 
     texture = None
     if brush_image := load_if_exists("brush"):
