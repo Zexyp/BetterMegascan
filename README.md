@@ -8,9 +8,10 @@ Addon is now somewhat of a preview because I'm not sure if anyone finds it usefu
 ## Features
 Allows import of:
   - 3D Assets (plants)
-  - Surfaces (decals, atlases, ...)
-  - Brushes (their opacity maps)
+  - Surfaces (decals, atlases, etc.)
+  - Brushes
   - Custom naming templates
+  - Whole libraries
 
 The import process is highly customizable (i'm too lazy to update the image - there is more now):
 <div style="text-align: center;">
@@ -18,8 +19,8 @@ The import process is highly customizable (i'm too lazy to update the image - th
 </div>
 
 ## Requirements
-Required **Python** version: `3.10`\
-Tested on **Blender** version: `3.6`
+Tested on **Blender** version: `4.1`\
+Required **Python** version: `3.10`
 
 ## Installation
 - `Edit > Preferences > Add-ons > Install` and find your zip archive
