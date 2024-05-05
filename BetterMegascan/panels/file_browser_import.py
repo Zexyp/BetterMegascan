@@ -75,7 +75,7 @@ class BETTERMS_PT_import_lods(BaseFilePanel):
         ]
 
     def draw_ui(self, layout, operator):
-        ui.lods(layout, operator)
+        ui.models(layout, operator)
 
 
 class BETTERMS_PT_import_textures(BaseFilePanel):

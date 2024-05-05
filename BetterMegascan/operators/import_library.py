@@ -10,7 +10,7 @@ from .. import ui
 
 class BETTERMS_OT_import_library(Operator, ImportHelper):
     bl_idname = "betterms.import_library"
-    bl_label = "Import Megascan Library"
+    bl_label = "Bake Megascan Library"
     bl_options = {'PRESET'}
 
     filter_glob: StringProperty(
