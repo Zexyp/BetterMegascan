@@ -4,8 +4,6 @@ from .base_importer import BaseImporter, ModelImportProps, AssetImportProps
 from .. import loader
 from .. import preferences
 
-from . import log
-
 '''
 map_options_names = [
     "Albedo",

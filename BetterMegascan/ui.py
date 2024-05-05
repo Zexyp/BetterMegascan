@@ -16,6 +16,15 @@ additional_tags_options_display_names = [
     "Contains", "Theme", "Descriptive", "Collection", "Environment", "State", "Color", "Industry"
 ]
 
+class BETTERMS_UL_bake_library_assets(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
+        layout.label(text=item.name)
+        row = layout.row()
+        row.enabled = False
+        row.label(text=item.type)
+        row.label(text=item.id)
+        layout.prop(item, "selected", text='')
+
 def popup_message(message="", title="Message", icon='INFO'):
     def draw(self, context):
         self.layout.label(text=message)
@@ -33,7 +42,7 @@ def group(layout, operator):
     col.prop(operator, "group_by_model", text="Asset")
     col.prop(operator, "group_by_lod", text="LODs")
 
-def lods(layout, operator):
+def models(layout, operator):
     layout.prop(operator, "apply_transform")
 
     layout.separator()
@@ -47,8 +56,6 @@ def lods(layout, operator):
     for i in range(5, 9):
         row.prop(operator, "use_lods", index=i, text=str(ModelImportProps.lod_options[i][1]))
 
-    layout.prop(operator, "name_template_model")
-
 def maps(layout, operator):
     layout.prop(operator, "force_pack_maps")
 
@@ -60,9 +67,6 @@ def maps(layout, operator):
 
     layout.separator()
 
-    layout.prop(operator, "name_template_material")
-    layout.prop(operator, "name_template_map")
-
 
 def filetype_lods(layout, operator):
     layout.prop(operator, "use_filetype_lods")
@@ -70,7 +74,17 @@ def filetype_lods(layout, operator):
 def filetype_maps(layout, operator):
     layout.prop(operator, "use_filetype_maps")
 
-def library(layout, operator, mdataarr: list = []):
+def library(layout, operator):
+    split = layout.split()
+
+    # includes
+    column = split.column(heading="Include Assets", align=True)
+    for i, name in enumerate(include_assets_options_display_names):
+        column.prop(operator, "include_assets", index=i, text=name)
+    column = split.column(heading="Include Surfaces", align=True)
+    for i, name in enumerate(include_surfaces_options_display_names):
+        column.prop(operator, "include_surfaces", index=i, text=name)
+
     layout.prop(operator, "options_tab", text="")
 
     if operator.options_tab == 'SETTINGS':
@@ -90,16 +104,6 @@ def library(layout, operator, mdataarr: list = []):
 
         split = layout.split()
 
-        # includes
-        column = split.column(heading="Include Assets", align=True)
-        for i, name in enumerate(include_assets_options_display_names):
-            column.prop(operator, "include_assets", index=i, text=name)
-        column = split.column(heading="Include Surfaces", align=True)
-        for i, name in enumerate(include_surfaces_options_display_names):
-            column.prop(operator, "include_surfaces", index=i, text=name)
-
-        split = layout.split()
-
         # asset
         column = split.column()
         column.label(text="Asset")
@@ -108,8 +112,8 @@ def library(layout, operator, mdataarr: list = []):
         box = column.box()
         column.enabled = any(operator.include_assets)
         filetype_lods(box, operator)
+        models(box, operator)
         group(box, operator)
-        lods(box, operator)
 
         # surface
         column = split.column()
@@ -118,8 +122,7 @@ def library(layout, operator, mdataarr: list = []):
         filetype_maps(box, operator)
         maps(box, operator)
     elif operator.options_tab == 'LIST':
-        for mdata in mdataarr:
-            layout.label(text=mdata.name)
+        layout.template_list("BETTERMS_UL_bake_library_assets", "", operator, "assets", operator, "active_asset_index")
 
 def menu_append_topbar_file_import(self, context):
     layout = self.layout
@@ -129,7 +132,8 @@ def menu_append_topbar_file_import(self, context):
 
 def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_append_topbar_file_import)
+    bpy.utils.register_class(BETTERMS_UL_bake_library_assets)
 
 def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_append_topbar_file_import)
-
+    bpy.utils.unregister_class(BETTERMS_UL_bake_library_assets)

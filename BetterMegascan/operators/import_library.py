@@ -1,19 +1,16 @@
 import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
-from bpy.props import StringProperty, BoolProperty, BoolVectorProperty
+from bpy.props import StringProperty
 
 import os
 
-from . import log
-from .. import parser
-from .. import loader
 from .. import ui
 
 
 class BETTERMS_OT_import_library(Operator, ImportHelper):
     bl_idname = "betterms.import_library"
-    bl_label = "Import Megascan Library"
+    bl_label = "Bake Megascan Library"
     bl_options = {'PRESET'}
 
     filter_glob: StringProperty(
