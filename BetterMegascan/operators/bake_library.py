@@ -1,3 +1,6 @@
+import os.path
+import uuid
+
 import bpy.props
 from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty, BoolVectorProperty, EnumProperty, CollectionProperty, IntProperty
@@ -91,7 +94,7 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
     # TODO: add presets for settings sections
 
     def __init__(self):
-        self.mdataarr: list = []
+        self.mdataarr: list[parser.structures.MegascanData] = []
 
     def draw(self, context):
         layout = self.layout
@@ -118,6 +121,12 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
             return {'CANCELLED'}
         prefs = preferences.get(context)
 
+        catalogs = {}
+        for mdata in loadarr:
+            if mdata.categoryPath not in catalogs:
+                catalogs[mdata.categoryPath] = str(uuid.uuid4())
+        loader.generate_cats_file(catalogs)
+
         log.debug(f"loading {len(loadarr)} assets")
 
         loader.load_library(mdataarr=loadarr,
@@ -131,14 +140,13 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
                             apply_transform=self.apply_transform,
                             use_lods=[ModelImportProps.lod_options[i][0] for i, e in enumerate(self.use_lods) if e],
                             use_maps=[ModelImportProps.map_options[i][0] for i, e in enumerate(self.use_maps) if e],
-                            include_assets=[self.include_assets_options[i] for i, e in enumerate(self.include_assets) if e],
-                            include_surfaces=[self.include_surfaces_options[i] for i, e in enumerate(self.include_surfaces) if e],
                             use_tags=self.use_tags,
                             # semantic_tags_categories=[self.additional_tags_options[i] for i, e in enumerate(self.additional_tags) if e]
                             name_template_material=prefs.name_template_material,
                             name_template_map=prefs.name_template_map,
                             name_template_model=prefs.name_template_model,
                             name_template_group_asset=prefs.name_template_group_asset,
-                            name_template_group_model=prefs.name_template_group_model)
+                            name_template_group_model=prefs.name_template_group_model,
+                            catalogs_lookup=catalogs)
 
         return {'FINISHED'}
