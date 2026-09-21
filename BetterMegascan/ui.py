@@ -3,6 +3,7 @@ import bpy
 from . import operators
 from .operators.base_importer import ModelImportProps, SurfaceImportProps
 from . import icons
+from . import lists
 
 include_assets_options_display_names = [
     "3D Asset", "3D Plant",
@@ -15,15 +16,6 @@ include_surfaces_options_display_names = [
 additional_tags_options_display_names = [
     "Contains", "Theme", "Descriptive", "Collection", "Environment", "State", "Color", "Industry"
 ]
-
-class BETTERMS_UL_bake_library_assets(bpy.types.UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
-        layout.label(text=item.name)
-        row = layout.row()
-        row.enabled = False
-        row.label(text=item.type)
-        row.label(text=item.id)
-        layout.prop(item, "selected", text='')
 
 def popup_message(message="", title="Message", icon='INFO'):
     def draw(self, context):
@@ -129,11 +121,10 @@ def menu_append_topbar_file_import(self, context):
     layout.separator()
     layout.operator(operators.BETTERMS_OT_init_import_menu.bl_idname, icon_value=icons.icons["megascans"].icon_id)
     layout.operator(operators.BETTERMS_OT_import_library.bl_idname, icon='ASSET_MANAGER')
+    layout.separator()
 
 def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_append_topbar_file_import)
-    bpy.utils.register_class(BETTERMS_UL_bake_library_assets)
 
 def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_append_topbar_file_import)
-    bpy.utils.unregister_class(BETTERMS_UL_bake_library_assets)

@@ -8,15 +8,11 @@ from .. import loader
 from .. import ui
 from .. import preferences
 from .. import spawn_logger
+from .. import groups
+
 
 log = spawn_logger(__name__)
 
-
-class BETTERMS_PG_bake_library_asset(bpy.types.PropertyGroup):
-    selected: BoolProperty()
-    id: StringProperty()
-    name: StringProperty()
-    type: StringProperty()
 
 class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
     bl_idname = "betterms.bake_library"
@@ -85,7 +81,7 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
         ]
     )
 
-    assets: CollectionProperty(type=BETTERMS_PG_bake_library_asset)
+    assets: CollectionProperty(type=groups.BETTERMS_PG_bake_library_asset)
     active_asset_index: IntProperty()
 
     # TODO: add presets for settings sections

@@ -33,6 +33,8 @@ log = spawn_logger(__name__)
 from . import operators
 from . import panels
 from . import menus
+from . import groups
+from . import lists
 
 from . import icons
 from . import parser
@@ -43,6 +45,8 @@ parser.tmp_dir = os.path.join(bpy.app.tempdir, 'BetterMegascan')
 
 
 classes = [
+    *groups.classes,
+    *lists.classes,
     *menus.classes,
     *operators.classes,
     *panels.classes,
@@ -54,6 +58,8 @@ register_classes, unregister_classes = bpy.utils.register_classes_factory(classe
 
 
 def register():
+    log.debug("start gm")
+
     icons.register()
 
     register_classes()
@@ -64,6 +70,8 @@ def register():
 
 
 def unregister():
+    log.debug("start gn")
+
     icons.unregister()
 
     unregister_classes()
