@@ -68,7 +68,7 @@ A more complex texture nodes setup is created when opacity and albedo are found.
 All created names are templated. Every field tells its available variable names.
 Using the Python template form is simple:
 ```
-simpy:
+simply:
 "hello $name" => "hello <name goes here>"
 
 to be safe:
