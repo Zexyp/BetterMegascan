@@ -87,6 +87,6 @@ Default import menu type is pie. If you want a default menu there is an option f
 - Activate if necessary
 
 ## References
-https://gist.github.com/kamilwaheed/b324ed9637c7a6599650 (outdated)
-https://quixel.github.io/megascans-api-docs/quick-start-guide/ (also outdated)
+- https://gist.github.com/kamilwaheed/b324ed9637c7a6599650 (outdated)
+- https://quixel.github.io/megascans-api-docs/quick-start-guide/ (also outdated)
 
