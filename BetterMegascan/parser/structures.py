@@ -8,12 +8,12 @@ class MegascanFileInfo:
 
 
 @dataclass
-class MegascanModelLOD(MegascanFileInfo):
+class MegascanModelLod(MegascanFileInfo):
     level: int = None
 
 
 @dataclass
-class MegascanMapLOD(MegascanFileInfo):
+class MegascanMapLod(MegascanFileInfo):
     level: int = None
 
 
@@ -21,14 +21,14 @@ class MegascanMapLOD(MegascanFileInfo):
 class MegascanModel:
     name: str = None
     #          level     mime
-    lods: dict[int, dict[str, MegascanModelLOD]] = field(default_factory=lambda: {})
+    lods: dict[int, dict[str, MegascanModelLod]] = field(default_factory=lambda: {})
 
 
 @dataclass
 class MegascanMap:
     type: str = None
     #          level     mime
-    lods: dict[int, dict[str, MegascanMapLOD]] = field(default_factory=lambda: {})
+    lods: dict[int, dict[str, MegascanMapLod]] = field(default_factory=lambda: {})
 
 @dataclass
 class MegascanData:

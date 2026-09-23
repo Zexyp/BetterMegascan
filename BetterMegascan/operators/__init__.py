@@ -1,6 +1,6 @@
-from .. import spawn_logger
+import logging
 
-log = spawn_logger(__name__)
+log = logging.getLogger(__name__)
 
 from .import_model import BETTERMS_OT_import_model
 from .import_surface import BETTERMS_OT_import_surface

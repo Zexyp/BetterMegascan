@@ -1,19 +1,20 @@
 """
 yes, it is a bit messy
 """
+from pprint import pprint
 
 import bpy
 
 import os
 import string
+import logging
 
 from .. import parser
-from .. import spawn_logger
 from ..parser.structures import MegascanData, MegascanMap
 
 from .node_spawner import NodeSpawner
 
-log = spawn_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 # utility function
@@ -199,9 +200,17 @@ def load_material(mdata: MegascanData,
 
     loaded_images = {}
 
+    # fixitko
+    # TODO: fix this in other part of the pipeline
+    # normalize input data names
+    if "basecolor" in mdata.maps:
+        assert "albedo" not in mdata.maps
+        mdata.maps["albedo"] = mdata.maps["basecolor"]
+
     def load_maps(mdata):
         pass
         for mapkey in mdata.maps:
+            # TODO: filtering not gud
             # filter maps
             try:
                 if mapkey not in use_maps:
@@ -248,7 +257,7 @@ def load_material(mdata: MegascanData,
         texnode.show_texture = True
         texnode.image.colorspace_settings.name = colorspace
 
-        if map_type in ["albedo", "specular", "translucency"] and texnode.image.file_format == 'OPEN_EXR':
+        if map_type in ["albedo", "specular", "translucency", "basecolor"] and texnode.image.file_format == 'OPEN_EXR':
             texnode.image.colorspace_settings.name = "Linear"
 
         if connect_to:
@@ -357,14 +366,21 @@ def load_material(mdata: MegascanData,
             pass
 
     # albedo map as last so the selected texture is correct
-    if "albedo" in loaded_images:
+    if "basecolor" in loaded_images or "albedo" in loaded_images:
+        albedo_name = None
+        if "albedo" in loaded_images:
+            albedo_name = "albedo"
+        elif "basecolor" in loaded_images:
+            albedo_name = "basecolor"
+        assert albedo_name is not None
+
         if "ao" in loaded_images:
-            create_texture_multiply_node("albedo", "ao", (-250, 320),
+            create_texture_multiply_node(albedo_name, "ao", (-250, 320),
                                               (-640, 460), (-640, 200),
                                               "sRGB", "Non-Color",
                                               parentnode, "Base Color")
         else:
-            create_texture_node("albedo", (-640, 420), "sRGB", parentnode, "Base Color")
+            create_texture_node(albedo_name, (-640, 420), "sRGB", parentnode, "Base Color")
 
     if mark_asset:
         add_asset(material, mdata, use_tags=use_tags, generate_previews=True)
@@ -399,7 +415,7 @@ def load_brush(mdata: MegascanData,
         texture = bpy.data.textures.new(texture_name, type='IMAGE')
         texture.image = brush_image
     else:
-        albedo_image = load_if_exists("albedo")
+        albedo_image = load_if_exists("albedo") or load_if_exists("basecolor")
         opacity_image = load_if_exists("opacity")
 
         assert albedo_image and opacity_image

@@ -51,7 +51,8 @@ class BaseImporter(Operator, ImportHelper):
         options={'HIDDEN'}
     )
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mdata: MegascanData | None = None
         self.dir_path: str | None = None
 
@@ -120,7 +121,7 @@ class SurfaceImportProps:
         ("normal",       "Normal",       True),
         ("displacement", "Displacement", False),
         ("bump",         "Bump",         False),
-        ("ao",           "AO",           False),
+        ("ao",           "AO",           True),
         ("metalness",    "Metalness",    True),
         ("diffuse",      "Diffuse",      False),
         ("roughness",    "Roughness",    True),

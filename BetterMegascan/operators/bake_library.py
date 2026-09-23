@@ -1,3 +1,5 @@
+import logging
+
 import bpy.props
 from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty, BoolVectorProperty, EnumProperty, CollectionProperty, IntProperty
@@ -7,12 +9,9 @@ from .. import parser
 from .. import loader
 from .. import ui
 from .. import preferences
-from .. import spawn_logger
 from .. import groups
 
-
-log = spawn_logger(__name__)
-
+log = logging.getLogger(__name__)
 
 class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
     bl_idname = "betterms.bake_library"
@@ -86,7 +85,8 @@ class BETTERMS_OT_bake_library(Operator, ModelImportProps, AssetImportProps):
 
     # TODO: add presets for settings sections
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mdataarr: list = []
 
     def draw(self, context):

@@ -17,37 +17,37 @@ class BETTERMS_AddonPreferences(AddonPreferences):
 
     name_template_model: StringProperty(
         name="Model",
-        description="Specifies template for model name.\n(name, id, model, lod)",
+        description="Specifies the template for model name.\n(name, id, model, lod)",
         default="${name}_${id}_${model}_LOD${lod}"
     )
 
     name_template_group_asset: StringProperty(
         name="Asset Collection",
-        description="Specifies template for asset collection name.\n(name, id)",
+        description="Specifies the template for asset collection name.\n(name, id)",
         default="${name}_${id}"
     )
 
     name_template_group_model: StringProperty(
         name="Model Collection",
-        description="Specifies template for model collection name.\n(name, id, model)",
+        description="Specifies the template for model collection name.\n(name, id, model)",
         default="${name}_${id}_${model}"
     )
 
     name_template_material: StringProperty(
         name="Material",
-        description="Specifies template for material name.\n(name, id)",
+        description="Specifies the template for material name.\n(name, id)",
         default="${name}_${id}"
     )
 
     name_template_map: StringProperty(
         name="Map Image",
-        description="Specifies template for map name.\n(name, id, type)",
+        description="Specifies the template for map name.\n(name, id, type)",
         default="${name}_${id}_${type}"
     )
 
     name_template_brush: StringProperty(
         name="Brush Texture",
-        description="Specifies template for brush texture name.\n(name, id)",
+        description="Specifies the template for brush texture name.\n(name, id)",
         default="Brush_${name}_${id}"
     )
 
