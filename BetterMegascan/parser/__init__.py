@@ -28,8 +28,8 @@ def log_call(func):
 def _search_texture_file(filepath: str, dirfiles: list[str], tex_id, tex_type):
     ext = os.path.splitext(os.path.basename(filepath))[1].lstrip(".")
     pattern = rf".*{re.escape(tex_id)}_(raw|high|mid|low)_[1248]k_{re.escape(tex_type)}\.{re.escape(ext)}$"
-    print(pattern)
-    print(filepath)
+    #print(pattern)
+    #print(filepath)
     found = [e for e in dirfiles if
              re.match(pattern,
                       os.path.basename(e),
@@ -42,8 +42,8 @@ def _search_texture_file(filepath: str, dirfiles: list[str], tex_id, tex_type):
 def _search_geometry_file(filepath: str, dirfiles: list[str], geo_id):
     ext = os.path.splitext(os.path.basename(filepath))[1].lstrip(".")
     pattern = rf".*{re.escape(geo_id)}_(raw|high|mid|low)\.{re.escape(ext)}$"
-    print(pattern)
-    print(filepath)
+    #print(pattern)
+    #print(filepath)
     found = [e for e in dirfiles if
              re.match(pattern,
                       os.path.basename(e),
@@ -67,7 +67,9 @@ def _parse_json_models(mdata: MegascanData, jel, dirfiles: list[str]):
         mmodlod = MegascanModelLod()
         mmodlod.filepath = filepath
         mmodlod.filetype = jmodel["mimeType"]
-        mmodlod.level = jmodel.get("lod", jmodel["tier"])
+        mmodlod.level = jmodel.get("lod")
+        if mmodlod.level is None: # 0 is valid
+            mmodlod.level = jmodel["tier"]
 
         log.debug(f"found lod:\n{pformat(mmodlod)}")
 
@@ -224,7 +226,7 @@ def _parse_json_megascan(mdata: MegascanData, jroot, dirfiles: list[str]):
     log.debug(pformat(dirfiles))
     try:
         mdata.type = jroot["semanticTags"]["asset_type"]
-        mdata.name = jroot["name"]
+        mdata.name = jroot.get("name") or jroot["semanticTags"]["name"]
         mdata.id = jroot["id"]
 
         _parse_json_metadata(mdata, jroot)
